@@ -4,9 +4,28 @@ Azure AI Foundry integration for processing queries.
 """
 
 import os
+import sys
 from typing import Any, Optional
-from azure.ai.projects import AIProjectClient
-from azure.identity import DefaultAzureCredential
+
+# Import Python 3.8 compatibility fixes BEFORE azure.ai.projects
+try:
+    import py38_compat  # This applies necessary patches
+except ImportError:
+    pass
+
+try:
+    from azure.ai.projects import AIProjectClient
+    from azure.identity import DefaultAzureCredential
+except ImportError as e:
+    if sys.version_info < (3, 9):
+        raise ImportError(
+            f"Azure AI Projects SDK import failed on Python {sys.version_info.major}.{sys.version_info.minor}. "
+            "This is likely due to Python 3.8 compatibility issues. "
+            "Try using azure-ai-projects==1.0.0b3 or earlier version. "
+            f"Original error: {e}"
+        )
+    else:
+        raise
 
 def get_ai_project_client() -> AIProjectClient:
     """

@@ -1,3 +1,4 @@
 azure-functions
-azure-ai-projects
+azure-ai-projects==1.0.0b3
 azure-identity
+typing-extensions>=4.0.0
