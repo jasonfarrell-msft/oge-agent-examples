@@ -16,15 +16,11 @@ public class ProcessQueryService(IConfiguration configuration, ILogger<ProcessQu
         logger.LogInformation("Processing query with Azure AI Foundry Agent. ThreadId: {ThreadId}", threadId);
 
         var projectClient = new AIProjectClient(
-            endpoint: new Uri(configuration["FoundryProjectEndpoint"] ?? throw new InvalidOperationException("FoundryProjectEndpoint is not configured")),
-            credential: new DefaultAzureCredential(new DefaultAzureCredentialOptions
-            {
-                ExcludeVisualStudioCredential = true,
-                ExcludeInteractiveBrowserCredential = true
-            }));
+            endpoint: new Uri("https://foundry-agent-demo-eus2-mx01.services.ai.azure.com/api/projects/singleAgentDemo"),
+            credential: new DefaultAzureCredential());
 
         var agentsClient = projectClient.GetPersistentAgentsClient();
-        var agent = await agentsClient.Administration.GetAgentAsync(configuration["AgentId"]);
+        var agent = await agentsClient.Administration.GetAgentAsync("asst_bDUQeFI6nobYQAs55GAYL3KL");
 
         // Get or create thread
         PersistentAgentThread thread;

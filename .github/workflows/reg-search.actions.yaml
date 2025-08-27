@@ -26,7 +26,18 @@ jobs:
           dotnet build --configuration Release
         working-directory: regulation_search/website/api
 
-      - name: Build And Deploy
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: 'func-single-agent-demo-eus2-mx01'
+          package: 'regulation_search/website/api'
+
+      - name: Build And Deploy Frontend
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -36,6 +47,5 @@ jobs:
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: regulation_search/website/frontend
-          api_location: regulation_search/website/api
           output_location: regulation_search/website/frontend/dist
           ###### End of Repository/Build Configurations ######
