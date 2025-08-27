@@ -15,15 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Setup Python for API
-        uses: actions/setup-python@v4
+      - name: Setup .NET for API
+        uses: actions/setup-dotnet@v4
         with:
-          python-version: '3.12'
+          dotnet-version: '8.0.x'
       
-      - name: Install API dependencies
+      - name: Restore and build API
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          dotnet restore
+          dotnet build --configuration Release
         working-directory: regulation_search/website/api
 
       - name: Build And Deploy
