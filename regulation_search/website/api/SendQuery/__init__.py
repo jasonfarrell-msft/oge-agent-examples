@@ -30,9 +30,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         )
 
     query_value = req_body["query"]
+    thread_id = req_body.get("thread_id")
 
     try:
-        result = process_query(query_value)
+        if thread_id is not None:
+            result = process_query(query_value, thread_id)
+        else:
+            result = process_query(query_value)
     except Exception:
         logging.exception("Error while processing query")
         return func.HttpResponse(

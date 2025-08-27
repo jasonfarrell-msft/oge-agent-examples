@@ -6,6 +6,7 @@ class ChatInterface {
         this.loadingIndicator = document.getElementById('loadingIndicator');
         
         this.isProcessing = false;
+        this.threadId = null; // Store thread_id for conversation continuity
         
         this.initializeEventListeners();
         this.setupTextareaAutoResize();
@@ -85,16 +86,34 @@ class ChatInterface {
         }
     }
     
+    // Method to clear conversation and reset thread
+    clearConversation() {
+        this.messagesContainer.innerHTML = '';
+        this.threadId = null;
+        console.log('Conversation cleared, thread_id reset');
+    }
+    
     async sendToBackend(message) {
-        const response = await fetch('https://www.mysite.com/api/send', {
+        // Prepare request body
+        const requestBody = {
+            message: message,
+            timestamp: new Date().toISOString()
+        };
+        
+        // Include thread_id if we have one (not for the first message)
+        if (this.threadId) {
+            requestBody.thread_id = this.threadId;
+            console.log('Sending with thread_id:', this.threadId);
+        } else {
+            console.log('First message, no thread_id sent');
+        }
+        
+        const response = await fetch('https://blue-river-0535d1a0f.1.azurestaticapps.net/api/send', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                message: message,
-                timestamp: new Date().toISOString()
-            })
+            body: JSON.stringify(requestBody)
         });
         
         if (!response.ok) {
@@ -102,9 +121,16 @@ class ChatInterface {
         }
         
         const data = await response.json();
+        console.log('Response received:', data);
         
-        // Assuming the backend returns a response in a 'message' or 'response' field
-        return data.response || data.message || data.text || 'No response received';
+        // Store thread_id for subsequent requests
+        if (data.thread_id) {
+            this.threadId = data.thread_id;
+            console.log('Thread ID stored:', this.threadId);
+        }
+        
+        // Return the response field content
+        return data.response || 'No response received';
     }
     
     addMessage(content, sender, isError = false) {
