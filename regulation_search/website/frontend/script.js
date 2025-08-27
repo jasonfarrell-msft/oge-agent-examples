@@ -108,7 +108,7 @@ class ChatInterface {
             console.log('First message, no thread_id sent');
         }
         
-        const response = await fetch('https://blue-river-0535d1a0f.1.azurestaticapps.net/api/send', {
+        const response = await fetch('https://func-single-agent-demo-eus2-mx01.azurewebsites.net/api/send', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ class ChatInterface {
         
         // Store thread_id for subsequent requests
         if (data.thread_id) {
-            this.threadId = data.thread_id;
+            this.threadId = data.threadId;
             console.log('Thread ID stored:', this.threadId);
         }
         
