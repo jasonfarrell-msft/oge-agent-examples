@@ -17,7 +17,11 @@ public class ProcessQueryService(IConfiguration configuration, ILogger<ProcessQu
 
         var projectClient = new AIProjectClient(
             endpoint: new Uri(configuration["FoundryProjectEndpoint"] ?? throw new InvalidOperationException("FoundryProjectEndpoint is not configured")),
-            credential: new DefaultAzureCredential());
+            credential: new DefaultAzureCredential(new DefaultAzureCredentialOptions
+            {
+                ExcludeVisualStudioCredential = true,
+                ExcludeInteractiveBrowserCredential = true
+            }));
 
         var agentsClient = projectClient.GetPersistentAgentsClient();
         var agent = await agentsClient.Administration.GetAgentAsync(configuration["AgentId"]);
