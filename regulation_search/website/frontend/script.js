@@ -96,8 +96,7 @@ class ChatInterface {
     async sendToBackend(message) {
         // Prepare request body
         const requestBody = {
-            message: message,
-            timestamp: new Date().toISOString()
+            query: message
         };
         
         // Include thread_id if we have one (not for the first message)
