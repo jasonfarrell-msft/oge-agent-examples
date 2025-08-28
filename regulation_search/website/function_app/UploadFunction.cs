@@ -40,6 +40,7 @@ public class UploadFunction(ILogger<UploadFunction> logger, IAgentFileService ag
                 ? contentTypeValues.FirstOrDefault() ?? "application/pdf"
                 : "application/pdf";
 
+            logger.LogInformation("Received file: {FileName} with content type: {ContentType}", fileName, contentType);
             if (contentType.Contains("application/pdf"))
             {
                 var data = BinaryData.FromBytes(body);
