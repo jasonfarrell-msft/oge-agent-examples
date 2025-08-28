@@ -22,7 +22,7 @@ public class UploadFunction(ILogger<UploadFunction> logger, IAgentFileService ag
             using var reader = new MemoryStream();
             await req.Body.CopyToAsync(reader);
             var body = reader.ToArray();
-            
+
             if (body == null || body.Length == 0)
             {
                 var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
@@ -32,29 +32,18 @@ public class UploadFunction(ILogger<UploadFunction> logger, IAgentFileService ag
 
             // For now, we'll treat the entire body as the file content
             // In a real implementation, you'd parse the multipart form data
-            var fileName = req.Headers.TryGetValues("X-File-Name", out var fileNameValues) 
+            var fileName = req.Headers.TryGetValues("X-File-Name", out var fileNameValues)
                 ? fileNameValues.FirstOrDefault() ?? "uploaded-file.pdf"
                 : "uploaded-file.pdf";
 
-            var contentType = req.Headers.TryGetValues("Content-Type", out var contentTypeValues)
-                ? contentTypeValues.FirstOrDefault() ?? "application/pdf"
-                : "application/pdf";
+            var data = BinaryData.FromBytes(body);
+            logger.LogInformation("Processing file upload: {FileName}", fileName);
+            await agentFileService.ProcessFileAsync(data, fileName);
 
-            logger.LogInformation("Received file: {FileName} with content type: {ContentType}", fileName, contentType);
-            if (contentType.Contains("application/pdf"))
-            {
-                var data = BinaryData.FromBytes(body);
-                logger.LogInformation("Processing file upload: {FileName}", fileName);
-                await agentFileService.ProcessFileAsync(data, fileName);
+            var response = req.CreateResponse(HttpStatusCode.Accepted);
+            await response.WriteStringAsync("File uploaded successfully");
+            return response;
 
-                var response = req.CreateResponse(HttpStatusCode.Accepted);
-                await response.WriteStringAsync("File uploaded successfully");
-                return response;
-            }
-
-            var badResponse2 = req.CreateResponse(HttpStatusCode.BadRequest);
-            await badResponse2.WriteStringAsync("Only PDF files are supported");
-            return badResponse2;
         }
         catch (Exception ex)
         {
