@@ -2,7 +2,6 @@ using Farrellsoft.Examples.Agents.SingleAgent.Models;
 using Azure.AI.Projects;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Text;
 using System.ClientModel;
 using Azure.Identity;
 using Azure.AI.Agents.Persistent;
@@ -16,11 +15,11 @@ public class ProcessQueryService(IConfiguration configuration, ILogger<ProcessQu
         logger.LogInformation("Processing query with Azure AI Foundry Agent. ThreadId: {ThreadId}", threadId);
 
         var projectClient = new AIProjectClient(
-            endpoint: new Uri("https://foundry-agent-demo-eus2-mx01.services.ai.azure.com/api/projects/singleAgentDemo"),
+            endpoint: new Uri(configuration["FoundryProjectEndpoint"] ?? throw new InvalidOperationException("FoundryProjectEndpoint not configured")),
             credential: new DefaultAzureCredential());
 
         var agentsClient = projectClient.GetPersistentAgentsClient();
-        var agent = await agentsClient.Administration.GetAgentAsync("asst_bDUQeFI6nobYQAs55GAYL3KL");
+        var agent = await agentsClient.Administration.GetAgentAsync(configuration["AgentId"]);
 
         // Get or create thread
         PersistentAgentThread thread;
