@@ -7,7 +7,7 @@ import random
 
 app = func.FunctionApp()
 
-@app.route(route="weather", methods=["GET"])
+@app.route(route="weather", methods=["GET"], auth_level=func.AuthLevel.ANONYMOUS)
 def weather_endpoint(req: func.HttpRequest) -> func.HttpResponse:
 	# Generate random weather data
 	cloud_cover = random.randint(0, 100)  # percentage
