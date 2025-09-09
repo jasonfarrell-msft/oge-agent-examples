@@ -1,0 +1,16 @@
+/* main.css - custom styles for the Weather & Renewable Details page */
+
+/* Light page background and spacing tweaks */
+body {
+  background-color: #f8f9fa;
+}
+
+/* Slightly bolder card titles for clarity */
+.card-title {
+  font-weight: 600;
+}
+
+/* Small visual tweak for the status badge dot */
+.badge.rounded-circle {
+  line-height: 0.5;
+}
