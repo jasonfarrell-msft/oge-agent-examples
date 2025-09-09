@@ -1,0 +1,54 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Weather API",
+    "description": "Provides weather information from the multiagent support function.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://func-multiagent-support-euse2-mx01.azurewebsites.net/api"
+    }
+  ],
+  "paths": {
+    "/weather": {
+      "get": {
+        "summary": "Get weather information",
+        "operationId": "getWeather",
+        "responses": {
+          "200": {
+            "description": "Successful response with weather data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "temperature": {
+                      "type": "number",
+                      "format": "float",
+                      "description": "Current temperature"
+                    },
+                    "condition": {
+                      "type": "string",
+                      "description": "Weather condition (e.g., sunny, cloudy)"
+                    },
+                    "location": {
+                      "type": "string",
+                      "description": "Location for the weather data"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  }
+}
