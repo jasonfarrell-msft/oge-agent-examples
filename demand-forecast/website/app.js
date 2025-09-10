@@ -1,82 +1,60 @@
 // app.js - JavaScript for Weather & Renewable Details page
 
-// Check negotiate endpoint on document ready and update visual indicator
-async function checkNegotiateEndpoint() {
-  const statusEl = document.getElementById('negotiateStatus');
-  const baseUrl = 'https://func-multiagent-eus2-mx01.azurewebsites.net/';
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 5000);
-
-  try {
-    const res = await fetch(`${baseUrl}api/negotiate`, { method: 'POST', signal: controller.signal });
-    clearTimeout(timeout);
-
-    if (res.ok) {
-      statusEl.innerHTML = `
-        <div class="alert alert-success d-flex align-items-center" role="status">
-          <span class="badge bg-success rounded-circle me-2" style="width:12px;height:12px;display:inline-block;">&nbsp;</span>
-          <div>CONNECTED</div>
-        </div>`;
-      // Optionally log the negotiate response for debugging
-      try { const json = await res.json(); console.debug('negotiate response', json); } catch (e) {}
-    } else {
-      statusEl.innerHTML = `
-        <div class="alert alert-danger d-flex align-items-center" role="alert">
-          <span class="badge bg-danger rounded-circle me-2" style="width:12px;height:12px;display:inline-block;">&nbsp;</span>
-          <div>Negotiate endpoint returned HTTP ${res.status}</div>
-        </div>`;
-    }
-  } catch (err) {
-    clearTimeout(timeout);
-    const msg = err.name === 'AbortError' ? 'request timed out' : 'network error or CORS blocked';
-    statusEl.innerHTML = `
-      <div class="alert alert-danger d-flex align-items-center" role="alert">
-        <span class="badge bg-danger rounded-circle me-2" style="width:12px;height:12px;display:inline-block;">&nbsp;</span>
-        <div>Negotiate endpoint check failed: ${msg}</div>
-      </div>`;
-    console.error('Negotiate check error:', err);
-  }
-}
-
-// Simple client-side behavior: compute dummy renewable values when Send Weather is clicked
+// Simple client-side behavior: compute dummy renewable values when Set Weather is clicked
 function setupWeatherHandler() {
-  const sendBtn = document.getElementById('sendWeatherBtn');
-  if (!sendBtn) return;
+  console.log('Setting up weather handler...');
+  const setWeatherBtn = document.getElementById('setWeatherBtn');
+  console.log('Weather button element:', setWeatherBtn);
+  if (!setWeatherBtn) {
+    console.error('Set Weather button not found!');
+    return;
+  }
 
-  sendBtn.addEventListener('click', () => {
-    const cloud = document.getElementById('cloudCoverage').value;
-    // Wind is provided in miles per hour (mph) in the UI; convert to m/s for the toy model
-    const windMph = parseFloat(document.getElementById('windSpeed').value) || 0;
-    const wind = windMph / 2.2369362920544; // convert mph -> m/s
-
-    // Base assumptions for a toy model (MW)
-    const baseSolarClear = 500; // MW when clear
-    const baseSolarPartly = 350;
-    const baseSolarMostly = 150;
-    const baseSolarCloudy = 50;
-
-    let solar = baseSolarClear;
-    switch (cloud) {
-      case 'clear': solar = baseSolarClear; break;
-      case 'partly': solar = baseSolarPartly; break;
-      case 'mostly': solar = baseSolarMostly; break;
-      case 'cloudy': solar = baseSolarCloudy; break;
+  setWeatherBtn.addEventListener('click', async () => {
+    console.log('setting weather');
+    // Clear any previous error messages
+    hideWeatherStatus();
+    
+    // Show progress indicator and disable button
+    showWeatherProgress();
+    setWeatherBtn.disabled = true;
+    
+    try {
+      // Map cloud coverage to numbers
+      const cloudCoverageValue = document.getElementById('cloudCoverage').value;
+      let cloudCoverageNumber;
+      switch (cloudCoverageValue) {
+        case 'clear': cloudCoverageNumber = 0; break;
+        case 'partly': cloudCoverageNumber = 1; break;
+        case 'mostly': cloudCoverageNumber = 2; break;
+        case 'cloudy': cloudCoverageNumber = 3; break;
+        default: cloudCoverageNumber = 0; break;
+      }
+      
+      // Prepare payload for API call
+      const timeOfDayValue = document.getElementById('timeOfDay').value || '12:00';
+      const payload = {
+        windSpeed: parseFloat(document.getElementById('windSpeed').value) || 0,
+        cloudCoverage: cloudCoverageNumber,
+        timeOfDay: timeOfDayValue
+      };
+      
+      console.log('Sending weather payload:', payload);
+      
+      // Make actual API call
+      await postWeatherData(payload);
+      
+      // Show success message
+      showWeatherSuccess();
+      
+    } catch (error) {
+      console.error('Weather API call failed:', error);
+      showWeatherError();
+    } finally {
+      // Re-enable button and hide progress
+      setWeatherBtn.disabled = false;
+      hideWeatherProgress();
     }
-
-    // Wind contribution: assume 10 MW per m/s of wind speed (toy model)
-    const windOutput = Math.max(0, wind) * 10;
-
-    const totalRenewable = Math.round((solar + windOutput) * 10) / 10; // MW
-
-    // Assume a fixed grid demand for this demo
-    const gridDemand = 1000; // MW
-
-    const percent = Math.round((totalRenewable / gridDemand) * 1000) / 10; // one decimal place
-
-    // Update UI
-    document.getElementById('totalRenewableOutput').value = totalRenewable.toLocaleString();
-    document.getElementById('totalGridDemand').value = gridDemand.toLocaleString();
-    document.getElementById('percentRenewables').value = isFinite(percent) ? percent : '--';
   });
 }
 
@@ -110,9 +88,250 @@ function populateTimeOptions() {
   if ([...select.options].some(o => o.value === defaultVal)) select.value = defaultVal;
 }
 
+// Demand status management functions
+function hideDemandStatus() {
+  document.getElementById('demandSaved').style.display = 'none';
+  document.getElementById('demandError').style.display = 'none';
+  document.getElementById('demandProgress').style.display = 'none';
+}
+
+function showDemandProgress() {
+  hideDemandStatus();
+  document.getElementById('demandProgress').style.display = 'inline';
+}
+
+function hideDemandProgress() {
+  document.getElementById('demandProgress').style.display = 'none';
+}
+
+function showDemandSuccess() {
+  hideDemandStatus();
+  const savedSpan = document.getElementById('demandSaved');
+  savedSpan.style.display = 'inline';
+  // Auto-hide success message after 5 seconds (consistent with weather)
+  setTimeout(() => {
+    savedSpan.style.display = 'none';
+  }, 5000);
+}
+
+function showDemandError() {
+  hideDemandStatus();
+  document.getElementById('demandError').style.display = 'inline';
+  // Error message stays visible until next button press
+}
+
+// Run status management functions
+function hideRunStatus() {
+  document.getElementById('runError').style.display = 'none';
+  document.getElementById('renewableOverlay').style.display = 'none';
+}
+
+function showRunProgress() {
+  hideRunStatus();
+  document.getElementById('renewableOverlay').style.display = 'flex';
+}
+
+function hideRunProgress() {
+  document.getElementById('renewableOverlay').style.display = 'none';
+}
+
+function showRunSuccess() {
+  hideRunStatus();
+  // No success message needed - just hide overlay and show populated data
+}
+
+function showRunError() {
+  hideRunStatus();
+  // Clear all field values
+  document.getElementById('percentRenewables').value = '--';
+  document.getElementById('totalGridDemand').value = '--';
+  document.getElementById('totalRenewableOutput').value = '--';
+  // Show error message
+  document.getElementById('runError').style.display = 'inline';
+}
+
+// Weather status management functions
+function hideWeatherStatus() {
+  document.getElementById('weatherSaved').style.display = 'none';
+  document.getElementById('weatherError').style.display = 'none';
+  document.getElementById('weatherProgress').style.display = 'none';
+}
+
+function showWeatherProgress() {
+  hideWeatherStatus();
+  document.getElementById('weatherProgress').style.display = 'inline';
+}
+
+function hideWeatherProgress() {
+  document.getElementById('weatherProgress').style.display = 'none';
+}
+
+function showWeatherSuccess() {
+  hideWeatherStatus();
+  const savedSpan = document.getElementById('weatherSaved');
+  savedSpan.style.display = 'inline';
+  // Auto-hide success message after 5 seconds
+  setTimeout(() => {
+    savedSpan.style.display = 'none';
+  }, 5000);
+}
+
+function showWeatherError() {
+  hideWeatherStatus();
+  document.getElementById('weatherError').style.display = 'inline';
+  // Error message stays visible until next button press
+}
+
+// Post weather data to the API endpoint
+async function postWeatherData(payload) {
+  const response = await fetch('https://func-multiagent-eus2-mx01.azurewebsites.net/api/receive_weather', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  // Server only returns status code, no JSON content
+  console.log('Weather data sent successfully:', payload, 'Status:', response.status);
+  return { status: response.status };
+}
+
+// Post demand data to the API endpoint
+async function postDemandData(payload) {
+  const response = await fetch('https://func-multiagent-eus2-mx01.azurewebsites.net/api/receive_demand', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  // Server only returns status code, no JSON content
+  console.log('Demand data sent successfully:', payload, 'Status:', response.status);
+  return { status: response.status };
+}
+
+// Execute the renewable calculation
+async function executeRenewableCalculation() {
+  const response = await fetch('https://func-multiagent-eus2-mx01.azurewebsites.net/api/execute', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  // This endpoint returns JSON data
+  const result = await response.json();
+  console.log('Execute response:', result);
+  return result;
+}
+
+// Handler for Set Demand button
+function setupDemandHandler() {
+  const setDemandBtn = document.getElementById('setDemandBtn');
+  if (!setDemandBtn) return;
+
+  setDemandBtn.addEventListener('click', async () => {
+    // Clear any previous error messages
+    hideDemandStatus();
+    
+    // Show progress indicator and disable button
+    showDemandProgress();
+    setDemandBtn.disabled = true;
+    
+    try {
+      const temperature = parseFloat(document.getElementById('temperatureF').value) || 70;
+      const numCustomers = parseInt(document.getElementById('numCustomers').value) || 1000;
+      
+      // Prepare payload for API call
+      const payload = {
+        numberOfCustomers: numCustomers,
+        temperature: temperature
+      };
+      
+      console.log('Sending demand payload:', payload);
+      
+      // Make actual API call
+      await postDemandData(payload);
+      
+      // Show success message
+      showDemandSuccess();
+      
+    } catch (error) {
+      console.error('Demand API call failed:', error);
+      showDemandError();
+    } finally {
+      // Re-enable button and hide progress
+      setDemandBtn.disabled = false;
+      hideDemandProgress();
+    }
+  });
+}
+
+// Handler for Run button
+function setupRunHandler() {
+  const runBtn = document.getElementById('runBtn');
+  if (!runBtn) return;
+
+  runBtn.addEventListener('click', async () => {
+    // Clear any previous error messages and show overlay
+    showRunProgress();
+    runBtn.disabled = true;
+    
+    try {
+      console.log('Executing renewable calculation...');
+      
+      // Make API call
+      const result = await executeRenewableCalculation();
+      
+      // Update the renewable details fields with response data
+      if (result.percentRenewables !== undefined) {
+        // Convert to percentage and format
+        const percentValue = (result.percentRenewables * 100).toFixed(1);
+        document.getElementById('percentRenewables').value = percentValue;
+      }
+      
+      if (result.totalGridNeeds !== undefined) {
+        document.getElementById('totalGridDemand').value = result.totalGridNeeds.toLocaleString();
+      }
+      
+      if (result.totalRenewableOutput !== undefined) {
+        document.getElementById('totalRenewableOutput').value = result.totalRenewableOutput.toLocaleString();
+      }
+      
+      // Success - just hide overlay (no message needed)
+      showRunSuccess();
+      
+    } catch (error) {
+      console.error('Execute API call failed:', error);
+      showRunError();
+    } finally {
+      // Re-enable button and hide progress
+      runBtn.disabled = false;
+      hideRunProgress();
+    }
+  });
+}
+
 // Run setup functions when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('DOM Content Loaded - starting setup...');
   populateTimeOptions();
   setupWeatherHandler();
-  checkNegotiateEndpoint();
+  setupDemandHandler();
+  setupRunHandler();
+  console.log('Setup complete');
 });

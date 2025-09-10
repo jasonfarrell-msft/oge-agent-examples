@@ -41,7 +41,6 @@ namespace Farrellsoft.Examples.Agents.MultiAgent.Functions
     public class SetCurrentWeatherRequest
     {
         public decimal WindSpeed { get; set; }
-        public decimal Temperature { get; set; }
         
         [JsonConverter(typeof(TimeOfDayConverter))]
         public DateTime TimeOfDay { get; set; }
@@ -76,13 +75,29 @@ namespace Farrellsoft.Examples.Agents.MultiAgent.Functions
                 };
 
                 var typedReq = JsonSerializer.Deserialize<SetCurrentWeatherRequest>(requestBody, options);
-                
                 if (typedReq == null)
                 {
                     return new BadRequestObjectResult("Failed to parse request body");
                 }
 
-                await cacheService.WriteAsync("CurrentWeather", typedReq);
+                // Map enum to decimal percent for storage
+                decimal cloudCoveragePercent = typedReq.CloudCoverage switch
+                {
+                    CloudCoverageEnum.Clear => 0m,
+                    CloudCoverageEnum.PartlyCloudy => 0.25m,
+                    CloudCoverageEnum.MostlyCloudy => 0.6m,
+                    CloudCoverageEnum.Cloudy => 0.8m,
+                    _ => 0m
+                };
+
+                var cacheObj = new
+                {
+                    WindSpeed = typedReq.WindSpeed,
+                    TimeOfDay = typedReq.TimeOfDay,
+                    CloudCoveragePercent = cloudCoveragePercent
+                };
+
+                await cacheService.WriteAsync("CurrentWeather", cacheObj);
                 return new AcceptedResult();
             }
             catch (JsonException je)

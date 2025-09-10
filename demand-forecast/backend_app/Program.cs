@@ -7,5 +7,6 @@ var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
 builder.Services.AddTransient<ICacheService, RedisCacheService>();
+builder.Services.AddTransient<IAgentService, DefaultAgentService>();
 
 builder.Build().Run();

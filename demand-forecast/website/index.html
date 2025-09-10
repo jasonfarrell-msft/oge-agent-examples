@@ -10,94 +10,149 @@
     <link href="main.css" rel="stylesheet">
   </head>
   <body>
-    <div class="container py-5">
-      <!-- Negotiate status indicator (initial state displayed while checking) -->
-      <div id="negotiateStatus" class="mb-4" aria-live="polite">
-        <div class="alert alert-secondary d-flex align-items-center" role="status">
-          <div class="spinner-border spinner-border-sm text-secondary me-2" role="status" aria-hidden="true"></div>
-          <div>Checking negotiate endpoint...</div>
+    <div class="container-fluid py-5">
+      <!-- Page Title -->
+      <div class="row mb-5">
+        <div class="col-12">
+          <h1 class="display-3 text-center mb-4">Renewable Energy Power Generation Demo</h1>
         </div>
       </div>
 
-      <!-- Top Section: Adjust Weather Conditions -->
-      <div class="card mb-4 shadow-sm">
-        <div class="card-body">
-          <h3 class="card-title mb-4">Adjust Weather Conditions</h3>
+      <!-- All sections side by side -->
+      <div class="row">
+        <!-- Left Section: Weather Controls -->
+        <div class="col-lg-4">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h3 class="card-title mb-4">Weather Controls</h3>
+              
+              <form id="weatherForm" class="g-3">
+                <div class="mb-3">
+                  <label for="cloudCoverage" class="form-label">Cloud Coverage</label>
+                  <select id="cloudCoverage" class="form-select" aria-label="Cloud Coverage select">
+                    <option value="clear">Clear</option>
+                    <option value="partly">Partly Cloudy</option>
+                    <option value="mostly">Mostly Cloudy</option>
+                    <option value="cloudy">Cloudy</option>
+                  </select>
+                </div>
 
-          <form id="weatherForm" class="row g-3">
-            <div class="col-md-6">
-              <label for="cloudCoverage" class="form-label">Cloud Coverage</label>
-              <select id="cloudCoverage" class="form-select" aria-label="Cloud Coverage select">
-                <option value="clear">Clear</option>
-                <option value="partly">Partly Cloudy</option>
-                <option value="mostly">Mostly Cloudy</option>
-                <option value="cloudy">Cloudy</option>
-              </select>
-            </div>
+                <div class="mb-3">
+                  <label for="windSpeed" class="form-label">Wind Speed</label>
+                  <input type="number" class="form-control" id="windSpeed" placeholder="mph" min="0" step="0.1" aria-describedby="windHelp">
+                  <div id="windHelp" class="form-text">Enter wind speed in miles per hour (mph).</div>
+                </div>
 
-            <div class="col-md-6">
-              <label for="temperatureF" class="form-label">Temperature (°F)</label>
-              <input type="number" class="form-control" id="temperatureF" placeholder="°F" step="0.1" aria-describedby="tempHelp">
-              <div id="tempHelp" class="form-text">Enter current temperature in Fahrenheit.</div>
-            </div>
+                <div class="mb-3">
+                  <label for="timeOfDay" class="form-label">Time of Day</label>
+                  <select id="timeOfDay" class="form-select" aria-describedby="timeHelp">
+                    <!-- Options in 24-hour format with 15-minute increments -->
+                    <!-- Generated as HH:MM from 00:00 to 23:45 -->
+                    ${/* options inserted by server-side tool */ ''}
+                  </select>
+                  <div id="timeHelp" class="form-text">Select hour (24-hour). Minutes selectable in 15-minute increments.</div>
+                </div>
 
-            <div class="col-md-6">
-              <label for="windSpeed" class="form-label">Wind Speed</label>
-              <input type="number" class="form-control" id="windSpeed" placeholder="mph" min="0" step="0.1" aria-describedby="windHelp">
-              <div id="windHelp" class="form-text">Enter wind speed in miles per hour (mph).</div>
-            </div>
-
-            <div class="col-md-6">
-              <label for="timeOfDay" class="form-label">Time of Day</label>
-              <select id="timeOfDay" class="form-select" aria-describedby="timeHelp">
-                <!-- Options in 24-hour format with 15-minute increments -->
-                <!-- Generated as HH:MM from 00:00 to 23:45 -->
-                ${/* options inserted by server-side tool */ ''}
-              </select>
-              <div id="timeHelp" class="form-text">Select hour (24-hour). Minutes selectable in 15-minute increments.</div>
-            </div>
-
-            <div class="col-12 text-end">
-              <button type="button" id="sendWeatherBtn" class="btn btn-primary">Send Weather</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Thin line between sections -->
-      <hr class="my-4">
-
-      <!-- Bottom Section: Renewable Details -->
-      <div class="card shadow-sm mt-3">
-        <div class="card-body">
-          <h4 class="card-title mb-4">Renewable Details</h4>
-
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label for="percentRenewables" class="form-label">Percent Renewables to cover current load</label>
-              <div class="input-group">
-                <input type="text" readonly class="form-control" id="percentRenewables" value="--" aria-label="Percent Renewables">
-                <span class="input-group-text">%</span>
-              </div>
-            </div>
-
-            <div class="col-md-4">
-              <label for="totalGridDemand" class="form-label">Total Grid Demand</label>
-              <div class="input-group">
-                <input type="text" readonly class="form-control" id="totalGridDemand" value="--" aria-label="Total Grid Demand">
-                <span class="input-group-text">MW</span>
-              </div>
-            </div>
-
-            <div class="col-md-4">
-              <label for="totalRenewableOutput" class="form-label">Total Renewable Output</label>
-              <div class="input-group">
-                <input type="text" readonly class="form-control" id="totalRenewableOutput" value="--" aria-label="Total Renewable Output">
-                <span class="input-group-text">MW</span>
-              </div>
+                <div class="text-end">
+                  <button type="button" id="setWeatherBtn" class="btn btn-primary">Set Weather</button>
+                  <span id="weatherProgress" class="text-secondary ms-2" style="display: none;">
+                    <div class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></div>
+                    Processing...
+                  </span>
+                  <span id="weatherSaved" class="text-success ms-2" style="display: none;">Saved!</span>
+                  <span id="weatherError" class="text-danger ms-2" style="display: none;">Error Saving</span>
+                </div>
+              </form>
             </div>
           </div>
+        </div>
 
+        <!-- Middle Section: Demand Controls -->
+        <div class="col-lg-4">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h3 class="card-title mb-4">Demand Controls</h3>
+              
+              <form id="demandForm" class="g-3">
+                <div class="mb-3">
+                  <label for="temperatureF" class="form-label">Temperature (°F)</label>
+                  <input type="number" class="form-control" id="temperatureF" placeholder="°F" step="0.1" aria-describedby="tempHelp">
+                  <div id="tempHelp" class="form-text">Enter current temperature in Fahrenheit.</div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="numCustomers" class="form-label">Number of Customers</label>
+                  <select id="numCustomers" class="form-select" aria-describedby="customerHelp">
+                    <option value="100">100</option>
+                    <option value="500">500</option>
+                    <option value="1000" selected>1,000</option>
+                    <option value="2000">2,000</option>
+                    <option value="5000">5,000</option>
+                    <option value="10000">10,000</option>
+                    <option value="50000">50,000</option>
+                  </select>
+                  <div id="customerHelp" class="form-text">Select number of customers.</div>
+                </div>
+
+                <div class="text-end">
+                  <button type="button" id="setDemandBtn" class="btn btn-primary">Set Demand</button>
+                  <span id="demandProgress" class="text-secondary ms-2" style="display: none;">
+                    <div class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></div>
+                    Processing...
+                  </span>
+                  <span id="demandSaved" class="text-success ms-2" style="display: none;">Saved!</span>
+                  <span id="demandError" class="text-danger ms-2" style="display: none;">Save failed</span>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Section: Renewable Details -->
+        <div class="col-lg-4">
+          <div class="card shadow-sm h-100 position-relative">
+            <!-- Processing overlay -->
+            <div id="renewableOverlay" class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="display: none !important; background-color: rgba(255, 255, 255, 0.8); z-index: 10;">
+              <div class="text-center">
+                <div class="spinner-border text-primary mb-3" role="status" aria-hidden="true" style="width: 3rem; height: 3rem;"></div>
+                <div class="fw-bold text-secondary">Processing...</div>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <h4 class="card-title mb-4">Renewable Details</h4>
+
+              <div class="mb-3">
+                <label for="percentRenewables" class="form-label">Percent Renewables to cover current load</label>
+                <div class="input-group">
+                  <input type="text" readonly class="form-control" id="percentRenewables" value="--" aria-label="Percent Renewables">
+                  <span class="input-group-text">%</span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="totalGridDemand" class="form-label">Total Grid Demand</label>
+                <div class="input-group">
+                  <input type="text" readonly class="form-control" id="totalGridDemand" value="--" aria-label="Total Grid Demand">
+                  <span class="input-group-text">MW</span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="totalRenewableOutput" class="form-label">Total Renewable Output</label>
+                <div class="input-group">
+                  <input type="text" readonly class="form-control" id="totalRenewableOutput" value="--" aria-label="Total Renewable Output">
+                  <span class="input-group-text">MW</span>
+                </div>
+              </div>
+
+              <div class="text-end">
+                <button type="button" id="runBtn" class="btn btn-primary">Run</button>
+                <span id="runError" class="text-danger ms-2" style="display: none;">Run failed</span>
+              </div>
+
+            </div>
+          </div>
         </div>
       </div>
 

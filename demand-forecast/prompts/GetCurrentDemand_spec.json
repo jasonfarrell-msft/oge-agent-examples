@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Weather API",
-    "description": "Provides weather information from the multiagent support function.",
+    "title": "Demand API",
+    "description": "Provides demand information from the multiagent support function.",
     "version": "1.0.0"
   },
   "servers": [
@@ -11,30 +11,26 @@
     }
   ],
   "paths": {
-    "/weather": {
+    "/demand": {
       "get": {
-        "summary": "Get weather information",
-        "operationId": "getWeather",
+        "summary": "Get demand information",
+        "operationId": "getDemand",
         "responses": {
           "200": {
-            "description": "Successful response with weather data",
+            "description": "Successful response with demand data",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "cloudCove": {
+                    "temperature": {
                       "type": "number",
                       "format": "float",
                       "description": "Current temperature"
                     },
-                    "condition": {
-                      "type": "string",
-                      "description": "Weather condition (e.g., sunny, cloudy)"
-                    },
-                    "location": {
-                      "type": "string",
-                      "description": "Location for the weather data"
+                    "numberOfCustomers": {
+                      "type": "number",
+                      "description": "Number of customers"
                     }
                   }
                 }
