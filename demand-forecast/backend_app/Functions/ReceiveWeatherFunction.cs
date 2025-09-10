@@ -1,8 +1,6 @@
-using System;
-using System.IO;
 using System.Globalization;
 using System.Text.Json;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
@@ -18,19 +16,43 @@ namespace Farrellsoft.Examples.Agents.MultiAgent.Functions
         Cloudy = 3
     }
 
+    public class TimeOfDayConverter : JsonConverter<DateTime>
+    {
+        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var value = reader.GetString();
+            if (string.IsNullOrEmpty(value))
+                return DateTime.MinValue;
+
+            if (DateTime.TryParseExact(value, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedTime))
+            {
+                return DateTime.Today.Add(parsedTime.TimeOfDay);
+            }
+
+            throw new JsonException($"Unable to parse TimeOfDay '{value}'. Expected format: HH:mm");
+        }
+
+        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString("HH:mm"));
+        }
+    }
+
     public class SetCurrentWeatherRequest
     {
         public decimal WindSpeed { get; set; }
         public decimal Temperature { get; set; }
+        
+        [JsonConverter(typeof(TimeOfDayConverter))]
         public DateTime TimeOfDay { get; set; }
+        
         public CloudCoverageEnum CloudCoverage { get; set; }
     }
 
-    public class ReceiveWeather(ILogger<ReceiveWeather> logger)
+    public class ReceiveWeather(ILogger<ReceiveWeather> logger, ICacheService cacheService)
     {
         [Function("receive_weather")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "receive_weather")] HttpRequest req)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "receive_weather")] HttpRequest req)
         {
             logger.LogInformation("C# HTTP trigger function processed a request.");
 
@@ -47,65 +69,21 @@ namespace Farrellsoft.Examples.Agents.MultiAgent.Functions
 
             try
             {
-                using var doc = JsonDocument.Parse(requestBody);
-                var root = doc.RootElement;
-
-                decimal windSpeed = 0m;
-                if (root.TryGetProperty("WindSpeed", out var wsEl) && wsEl.ValueKind == JsonValueKind.Number)
+                var options = new JsonSerializerOptions
                 {
-                    windSpeed = wsEl.GetDecimal();
-                }
-
-                decimal temperature = 0m;
-                if (root.TryGetProperty("Temperature", out var tEl) && tEl.ValueKind == JsonValueKind.Number)
-                {
-                    temperature = tEl.GetDecimal();
-                }
-
-                DateTime timeOfDay = DateTime.MinValue;
-                if (root.TryGetProperty("TimeOfDay", out var timeEl) && timeEl.ValueKind == JsonValueKind.String)
-                {
-                    var timeStr = timeEl.GetString();
-                    if (!string.IsNullOrEmpty(timeStr))
-                    {
-                        if (DateTime.TryParseExact(timeStr, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedTime))
-                        {
-                            timeOfDay = DateTime.Today.Add(parsedTime.TimeOfDay);
-                        }
-                        else
-                        {
-                            return new BadRequestObjectResult("TimeOfDay must be in HH:mm 24-hour format");
-                        }
-                    }
-                }
-
-                int cloudCoverageInt = 0;
-                if (root.TryGetProperty("CloudCoverage", out var ccEl) && ccEl.ValueKind == JsonValueKind.Number)
-                {
-                    cloudCoverageInt = ccEl.GetInt32();
-                }
-
-                CloudCoverageEnum cloudCoverage = Enum.IsDefined(typeof(CloudCoverageEnum), cloudCoverageInt)
-                    ? (CloudCoverageEnum)cloudCoverageInt
-                    : CloudCoverageEnum.Clear;
-
-                var typedReq = new SetCurrentWeatherRequest
-                {
-                    WindSpeed = windSpeed,
-                    Temperature = temperature,
-                    TimeOfDay = timeOfDay,
-                    CloudCoverage = cloudCoverage
+                    PropertyNameCaseInsensitive = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
-                var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-                var responseJson = JsonSerializer.Serialize(typedReq, options);
-
-                return new ContentResult
+                var typedReq = JsonSerializer.Deserialize<SetCurrentWeatherRequest>(requestBody, options);
+                
+                if (typedReq == null)
                 {
-                    Content = responseJson,
-                    ContentType = "application/json",
-                    StatusCode = 200
-                };
+                    return new BadRequestObjectResult("Failed to parse request body");
+                }
+
+                await cacheService.WriteAsync("CurrentWeather", typedReq);
+                return new AcceptedResult();
             }
             catch (JsonException je)
             {
