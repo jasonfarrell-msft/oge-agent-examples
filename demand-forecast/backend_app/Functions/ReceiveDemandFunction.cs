@@ -19,8 +19,6 @@ namespace Farrellsoft.Examples.Agents.MultiAgent.Functions
         {
             logger.LogInformation("Receive demand function processed a request.");
 
-            try
-            {
                 // Read the request body
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
@@ -53,21 +51,6 @@ namespace Farrellsoft.Examples.Agents.MultiAgent.Functions
 
                 // Return 204 Accepted result
                 return req.CreateResponse(HttpStatusCode.Accepted);
-            }
-            catch (JsonException ex)
-            {
-                logger.LogError(ex, "Invalid JSON in request body");
-                var badRequestResponse = req.CreateResponse(HttpStatusCode.BadRequest);
-                await badRequestResponse.WriteStringAsync($"Invalid JSON: {ex.Message}");
-                return badRequestResponse;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error processing demand request");
-                var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
-                await errorResponse.WriteStringAsync("Internal server error");
-                return errorResponse;
-            }
         }
     }
 }

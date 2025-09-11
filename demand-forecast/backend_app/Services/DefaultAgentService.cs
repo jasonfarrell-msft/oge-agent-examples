@@ -3,12 +3,7 @@ using Azure.AI.Projects;
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Farrellsoft.Examples.Agents.MultiAgent.Services
 {
@@ -22,19 +17,28 @@ namespace Farrellsoft.Examples.Agents.MultiAgent.Services
 
             var agentsClient = projectClient.GetPersistentAgentsClient();
             var thread = (await agentsClient.Threads.CreateThreadAsync()).Value;
+            logger.LogInformation("Created thread with ID: {ThreadId}", thread.Id);
 
-            var message = await agentsClient.Messages.CreateMessageAsync(
+            await agentsClient.Messages.CreateMessageAsync(
                 thread.Id,
                 MessageRole.User,
                 "Run analysis. Return only the JSON document in the response");
 
             var response = await GetResponse(agentsClient, thread.Id,
-                configuration["AgentId"] ?? throw new InvalidOperationException("AgentId not configured"));
+                configuration["FoundryDispatchAgentId"] ?? throw new InvalidOperationException("AgentId not configured"));
 
             if (string.IsNullOrEmpty(response))
                 throw new Exception("Agent did not return a response");
 
-            var analysisResult = JsonSerializer.Deserialize<AnalysisResult>(response);
+            logger.LogInformation("Agent response: {Response}", response);
+            
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            
+            var analysisResult = JsonSerializer.Deserialize<AnalysisResult>(response, options);
             if (analysisResult == null)
                 throw new Exception("Failed to deserialize agent response");
 
@@ -66,9 +70,12 @@ namespace Farrellsoft.Examples.Agents.MultiAgent.Services
             await foreach (var msg in messagesPaged)
             {
                 allMessages.Add(msg);
+                logger.LogDebug("Message: {Role} - {ContentItems}", msg.Role, msg.ContentItems.Count);
             }
 
-            return allMessages.SelectMany(x => x.ContentItems)
+            return allMessages
+                .Where(x => x.Role == MessageRole.Agent)
+                .SelectMany(x => x.ContentItems)
                 .Where(x => x is MessageTextContent)
                 .Cast<MessageTextContent>()
                 .Select(x => x.Text)

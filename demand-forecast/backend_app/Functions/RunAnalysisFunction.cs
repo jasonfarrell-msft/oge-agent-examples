@@ -9,11 +9,11 @@ namespace Farrellsoft.Examples.Agents.MultiAgent.Functions
     public class RunAnalysis(ILogger<RunAnalysis> logger, IAgentService agentService)
     {
         [Function("run_analysis")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "execute")] HttpRequest req)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "execute")] HttpRequest req)
         {
             logger.LogInformation("Invoking RunAnalysis function.");
 
-            var analysisResult = agentService.ExecuteAnalysis().GetAwaiter().GetResult();
+            var analysisResult = await agentService.ExecuteAnalysis();
             if (analysisResult == null)
             {
                 logger.LogError("AnalysisResult is null");
