@@ -128,7 +128,8 @@ function hideRunStatus() {
 
 function showRunProgress() {
   hideRunStatus();
-  document.getElementById('renewableOverlay').style.display = 'flex';
+  const overlay = document.getElementById('renewableOverlay');
+  overlay.style.display = 'flex';
 }
 
 function hideRunProgress() {
@@ -299,17 +300,21 @@ function setupRunHandler() {
       
       // Update the renewable details fields with response data
       if (result.percentRenewables !== undefined) {
-        // Convert to percentage and format
-        const percentValue = (result.percentRenewables * 100).toFixed(1);
+        // Convert decimal (0..1) to percentage and format to 1 decimal place
+        const raw = Number(result.percentRenewables);
+        const bounded = Number.isFinite(raw) ? Math.min(Math.max(raw, 0), 1) : 0;
+        const percentValue = (bounded * 100).toFixed(1);
         document.getElementById('percentRenewables').value = percentValue;
       }
       
       if (result.totalGridNeeds !== undefined) {
-        document.getElementById('totalGridDemand').value = result.totalGridNeeds.toLocaleString();
+        const val = Number(result.totalGridNeeds);
+        document.getElementById('totalGridDemand').value = Number.isFinite(val) ? val.toLocaleString() : '--';
       }
       
       if (result.totalRenewableOutput !== undefined) {
-        document.getElementById('totalRenewableOutput').value = result.totalRenewableOutput.toLocaleString();
+        const val2 = Number(result.totalRenewableOutput);
+        document.getElementById('totalRenewableOutput').value = Number.isFinite(val2) ? val2.toLocaleString() : '--';
       }
       
       // Success - just hide overlay (no message needed)
@@ -319,9 +324,9 @@ function setupRunHandler() {
       console.error('Execute API call failed:', error);
       showRunError();
     } finally {
-      // Re-enable button and hide progress
-      runBtn.disabled = false;
+      // Hide progress overlay and re-enable button
       hideRunProgress();
+      runBtn.disabled = false;
     }
   });
 }
@@ -333,5 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupWeatherHandler();
   setupDemandHandler();
   setupRunHandler();
+  // Ensure overlay is hidden on page load
+  hideRunStatus();
   console.log('Setup complete');
 });
