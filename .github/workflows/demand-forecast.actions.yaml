@@ -5,7 +5,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'demand-forecast/**'
+      - 'demand-forecast/backend_app/**'
+      - 'demand-forecast/website/**'
       - '.github/workflows/demand-forecast.actions.yaml'
 
 jobs:
