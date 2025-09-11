@@ -20,9 +20,16 @@ jobs:
         with:
           python-version: '3.11'
       
+      - name: Create and activate virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+        working-directory: demand-forecast/function_app
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          source venv/bin/activate
           pip install -r requirements.txt
         working-directory: demand-forecast/function_app
 
@@ -38,4 +45,3 @@ jobs:
           package: 'demand-forecast/function_app'
           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
           scm-do-build-during-deployment: true
-          enable-oryx-build: true
