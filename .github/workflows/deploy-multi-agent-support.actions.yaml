@@ -1,0 +1,47 @@
+name: Deploy Demand Forecast Agents Function App Support API
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'demand-forecast/function_app/**'
+      - '.github/workflows/deploy-multi-agent-support.actions.yaml'
+
+jobs:
+  build_and_deploy_job:
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Create and activate virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+        working-directory: demand-forecast/function_app
+
+      - name: Install dependencies
+        run: |
+          source venv/bin/activate
+          pip install -r requirements.txt
+        working-directory: demand-forecast/function_app
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1.5.2
+        with:
+          app-name: 'func-multiagent-support-euse2-mx01'
+          package: 'demand-forecast/function_app'
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+          scm-do-build-during-deployment: true
