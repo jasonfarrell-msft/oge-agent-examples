@@ -1,3 +1,4 @@
+using GridSimulator.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GridSimulator.Api.Controllers
@@ -7,9 +8,9 @@ namespace GridSimulator.Api.Controllers
     public class RunSimulationController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Run()
+        public IActionResult Run([FromBody] RunSimulationRequestModel request)
         {
-            return new OkObjectResult("Hello World");
+            return new OkObjectResult(request);
         }
     }
 }
