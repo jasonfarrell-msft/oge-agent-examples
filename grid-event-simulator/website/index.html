@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid Event Simulator - Control Panel</title>
+    <meta name="description" content="Power Grid Event Simulation Control Panel - Configure generation, demand, and simulation parameters">
+    <meta name="keywords" content="grid simulation, power generation, renewable energy, control panel">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="app.css">
+</head>
+<body>
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mb-4">Grid Event Simulator</h1>
+                
+                <!-- Main Content -->
+                <div class="row">
+                    <!-- Left Column - Configuration Sections (40% width) -->
+                    <div class="col-lg-5">
+                        <div class="control-panel-container">
+                        <!-- Generation Section -->
+                        <div class="card mb-4" id="generation-section">
+                            <div class="card-header bg-dark text-white control-panel-header">
+                                <h5 class="card-title mb-0">⚡ GENERATION</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="renewables-output" class="form-label">Renewables: <span id="renewables-value">800</span> MW</label>
+                                    <input type="range" class="form-range" id="renewables-output" min="500" max="1500" value="800" step="100">
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">500 MW</small>
+                                        <small class="text-muted">1500 MW</small>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="traditional-output" class="form-label">Traditional: <span id="traditional-value">1200</span> MW</label>
+                                    <input type="range" class="form-range" id="traditional-output" min="800" max="2000" value="1200" step="100">
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">800 MW</small>
+                                        <small class="text-muted">2000 MW</small>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="ramp-rate" class="form-label">Ramp Rate: <span id="ramp-rate-value">30</span> minutes (per 200MW)</label>
+                                    <input type="range" class="form-range" id="ramp-rate" min="15" max="60" value="30" step="10">
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">15 min</small>
+                                        <small class="text-muted">60 min</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Battery Section -->
+                        <div class="card mb-4" id="battery-section">
+                            <div class="card-header bg-dark text-white control-panel-header">
+                                <h5 class="card-title mb-0">🔋 BATTERY</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="battery-capacity" class="form-label">Current Charge: <span id="battery-capacity-value">2000</span> MW</label>
+                                    <input type="range" class="form-range" id="battery-capacity" min="1000" max="4000" value="2000" step="100">
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">1000 MW</small>
+                                        <small class="text-muted">4000 MW</small>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="discharge-rate" class="form-label">Discharge Rate: <span id="discharge-rate-value">270</span> MW</label>
+                                    <input type="range" class="form-range" id="discharge-rate" min="50" max="500" value="270" step="10">
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">50 MW</small>
+                                        <small class="text-muted">500 MW</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Demand Section -->
+                        <div class="card mb-4" id="demand-section">
+                            <div class="card-header bg-dark text-white control-panel-header">
+                                <h5 class="card-title mb-0">📊 DEMAND</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="residential-customers" class="form-label">Residential: <span id="residential-customers-value">1750</span> households</label>
+                                    <input type="range" class="form-range" id="residential-customers" min="500" max="3000" value="1750" step="50">
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">500 households</small>
+                                        <small class="text-muted">3000 households</small>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="commercial-customers" class="form-label">Commercial: <span id="commercial-customers-value">550</span> businesses</label>
+                                    <input type="range" class="form-range" id="commercial-customers" min="100" max="1000" value="550" step="100">
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">100 businesses</small>
+                                        <small class="text-muted">1000 businesses</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Simulation Parameters Section -->
+                        <div class="card mb-4" id="simulation-parameters-section">
+                            <div class="card-header bg-dark text-white control-panel-header">
+                                <h5 class="card-title mb-0">🎛️ SIMULATION PARAMETERS</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Environment Subsection -->
+                                <div class="mb-4 subsection-container">
+                                    <div class="subsection-header">
+                                        <h6 class="subsection-title">🌤️ ENVIRONMENT</h6>
+                                    </div>
+                                    <div class="subsection-content">
+                                    <div class="mb-3">
+                                        <label for="cloud-cover" class="form-label">Cloud Cover increases: <span id="cloud-cover-value">0</span>%</label>
+                                        <input type="range" class="form-range" id="cloud-cover" min="0" max="90" value="0" step="1">
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">0%</small>
+                                            <small class="text-muted">90%</small>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="temperature-increase" class="form-label">Temperature increases: <span id="temperature-increase-value">0</span>°</label>
+                                        <input type="range" class="form-range" id="temperature-increase" min="0" max="20" value="0" step="1">
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">0°</small>
+                                            <small class="text-muted">20°</small>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="wind-speed-drop" class="form-label">Wind Speed drops by: <span id="wind-speed-drop-value">0</span>%</label>
+                                        <input type="range" class="form-range" id="wind-speed-drop" min="0" max="90" value="0" step="1">
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">0%</small>
+                                            <small class="text-muted">90%</small>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+
+                                <!-- Technical Subsection -->
+                                <div class="mb-3 subsection-container">
+                                    <div class="subsection-header">
+                                        <h6 class="subsection-title">⚙️ TECHNICAL</h6>
+                                    </div>
+                                    <div class="subsection-content">
+                                    <div class="mb-3">
+                                        <label for="traditional-decrease" class="form-label">Traditional Output decreases by: <span id="traditional-decrease-value">0</span>%</label>
+                                        <input type="range" class="form-range" id="traditional-decrease" min="0" max="90" value="0" step="1">
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">0%</small>
+                                            <small class="text-muted">90%</small>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="renewable-drop" class="form-label">Renewable Output drops by: <span id="renewable-drop-value">0</span>%</label>
+                                        <input type="range" class="form-range" id="renewable-drop" min="0" max="90" value="0" step="1">
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">0%</small>
+                                            <small class="text-muted">90%</small>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Simulation Results (60% width) -->
+                    <div class="col-lg-7">
+                        <div class="results-panel-container">
+                            <div class="control-panel-header">
+                                <h2 class="mb-0">Simulation Results & Analysis</h2>
+                            </div>
+                            <div class="results-content">
+                                <!-- Placeholder for simulation results, charts, and analysis -->
+                                <div class="text-center text-muted p-5">
+                                    <i class="fas fa-chart-line fa-3x mb-3"></i>
+                                    <h4>Ready for Simulation</h4>
+                                    <p>Configure the parameters on the left and click "Run Simulation" to see results here.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Run Simulation Button (Centered Below Panels) -->
+                <div class="row">
+                    <div class="col-12 text-center mt-4">
+                        <button type="button" class="btn btn-success btn-lg" id="run-simulation-btn">
+                            <i class="fas fa-play me-2"></i>Run Simulation
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Grid Simulator Application -->
+    <script src="app.js"></script>
+</body>
+</html>
