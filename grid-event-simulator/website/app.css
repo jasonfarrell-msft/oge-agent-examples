@@ -416,9 +416,6 @@ h1 {
     color: #6c757d !important;
 }
 
-/* Responsive Design */
-}
-
 /* ================================
    RESPONSIVE DESIGN
    ================================ */
@@ -452,4 +449,59 @@ h1 {
 @keyframes highlightChange {
     0% { background-color: rgba(0, 123, 255, 0.2); }
     100% { background-color: transparent; }
+}
+
+/* ================================
+   LOADING OVERLAY STYLES
+   ================================ */
+.simulation-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(44, 62, 80, 0.95);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    border-radius: 12px;
+}
+
+.simulation-overlay.show {
+    display: flex;
+}
+
+.overlay-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    padding: 40px 50px;
+    border-radius: 20px;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.4),
+        0 8px 16px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    border: 2px solid #e9ecef;
+}
+
+.overlay-content h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.simulation-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #e9ecef;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

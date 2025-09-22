@@ -72,34 +72,66 @@ class GridSimulator {
         }
     }
 
-    runSimulation() {
+    async runSimulation() {
         const button = document.getElementById('run-simulation-btn');
         if (!button) return;
         
         // Collect all current configuration data
         const simulationConfig = this.collectAllData();
         
+        // Map to API request format
+        const apiRequest = this.mapToApiRequest(simulationConfig);
+        
         // Show loading state
         const originalText = button.innerHTML;
         button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Running Simulation...';
         button.disabled = true;
         
-        // Simulate processing time
-        setTimeout(() => {
-            // Reset button state
-            button.innerHTML = originalText;
-            button.disabled = false;
+        // Show loading overlay
+        this.showLoadingOverlay();
+        
+        try {
+            // Make API call
+            const response = await fetch('https://app-orch-multi-agent-eus2-mx01.azurewebsites.net/RunSimulation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(apiRequest)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
             
             // Save simulation data
-            this.saveSimulationData(simulationConfig);
+            this.saveSimulationData({...simulationConfig, apiResponse: result});
             
             // Show success message
             this.showNotification('Simulation completed successfully!', 'success');
             
             // Log the data for debugging
             console.log('Simulation Configuration:', simulationConfig);
+            console.log('API Request:', apiRequest);
+            console.log('API Response:', result);
             
-        }, 2000);
+        } catch (error) {
+            console.error('Simulation error:', error);
+            
+            // Show error message
+            this.showNotification(
+                `Simulation failed: ${error.message}. Please check your connection and try again.`, 
+                'danger'
+            );
+        } finally {
+            // Always reset UI state
+            button.innerHTML = originalText;
+            button.disabled = false;
+            this.hideLoadingOverlay();
+        }
     }
 
     collectAllData() {
@@ -131,6 +163,29 @@ class GridSimulator {
                 }
             },
             timestamp: new Date().toISOString()
+        };
+    }
+
+    /**
+     * Map the form data to the API request model structure
+     * Transforms internal data format to match RunSimulationRequestModel
+     */
+    mapToApiRequest(formData) {
+        return {
+            renewable_output: formData.renewables.output,
+            traditional_output: formData.traditional.output,
+            traditional_ramp_rate: formData.traditional.rampRate,
+            battery_charge: formData.battery.capacity,
+            battery_discharge_rate: formData.battery.dischargeRate,
+            number_of_residential_customers: formData.demand.residential,
+            number_of_commercial_customers: formData.demand.commercial,
+            parameters: {
+                cloud_cover_increase_percentage: formData.simulationParameters.environment.cloudCover,
+                temperature_increase_degrees: formData.simulationParameters.environment.temperatureIncrease,
+                wind_speed_decrease_percentage: formData.simulationParameters.environment.windSpeedDrop,
+                traditional_output_decrease_percentage: formData.simulationParameters.technical.traditionalDecrease,
+                renewable_output_decrease_percentage: formData.simulationParameters.technical.renewableDrop
+            }
         };
     }
 
@@ -172,6 +227,26 @@ class GridSimulator {
         setTimeout(() => {
             element.classList.remove('value-change');
         }, 300);
+    }
+
+    /**
+     * Show the simulation loading overlay
+     */
+    showLoadingOverlay() {
+        const overlay = document.getElementById('simulation-overlay');
+        if (overlay) {
+            overlay.classList.add('show');
+        }
+    }
+
+    /**
+     * Hide the simulation loading overlay
+     */
+    hideLoadingOverlay() {
+        const overlay = document.getElementById('simulation-overlay');
+        if (overlay) {
+            overlay.classList.remove('show');
+        }
     }
 
     // Shared utility functions
