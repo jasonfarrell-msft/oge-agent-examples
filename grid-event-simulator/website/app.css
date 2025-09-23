@@ -1,507 +1,514 @@
-/**
- * Grid Event Simulator - Control Panel Styles
- * Single-page application styling for power grid simulation interface
- * @version 2.0.0
- */
-
-/* ================================
-   GLOBAL STYLES & BASE LAYOUT
-   ================================ */
-body {
-    background: linear-gradient(135deg, #ecf0f1 0%, #d5dbdb 100%);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+/* Wizard Container Styles */
+.wizard-container {
     min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 0;
 }
 
-.container-fluid {
-    max-width: 1400px;
+.wizard-content {
+    padding-top: 135px; /* Space for fixed progress bar + 15px margin */
+    padding-bottom: 15px; /* 15px bottom margin */
+    min-height: auto;
 }
 
-/* ================================
-   HEADER & TYPOGRAPHY STYLES
-   ================================ */
-h1 {
-    color: #2c3e50;
-    font-weight: 600;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.wizard-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    padding: 27px;
+    height: auto;
+    min-height: fit-content;
 }
 
-/* Main Layout Styles */
-.main-content {
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    margin-bottom: 20px;
+/* Column Spacing for Generation Baseline and Demand Configuration */
+#step1 .col-md-6,
+#step2 .col-md-6 {
+    padding-left: 15px;
+    padding-right: 15px;
 }
 
-/* Configuration Sections Layout */
-.config-section {
-    margin-bottom: 1.5rem;
+#step1 .row,
+#step2 .row {
+    margin-left: -15px;
+    margin-right: -15px;
 }
 
-/* ================================
-   CONTROL PANEL CONTAINERS
-   ================================ */
-.control-panel-container {
-    background: linear-gradient(145deg, #2c3e50 0%, #34495e 100%);
-    border-radius: 12px;
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    border: 2px solid #34495e;
-    max-height: 70vh;
-    overflow-y: auto;
-    padding: 20px;
-    position: relative;
-}
-
-/* Results Panel Container */
-.results-panel-container {
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.15),
-        0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 2px solid #e9ecef;
-    height: 70vh;
-    overflow-y: auto;
-    padding: 20px;
-    position: relative;
-}
-
-/* Results Content Area */
-.results-content {
-    color: #2c3e50;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.results-content .text-muted {
-    color: #6c757d !important;
-}
-
-.results-content .fa-chart-line {
-    color: #3498db;
-}
-
-/* Results Panel Header */
-.results-panel-container .control-panel-header {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    color: white;
-    padding: 8px 16px;
-    margin: -20px -20px 20px -20px;
-    border-radius: 10px 10px 0 0;
-    border-bottom: 3px solid #2980b9;
-    position: relative;
-}
-
-/* ================================
-   SIMULATION PARAMETER SUBSECTIONS
-   ================================ */
-.subsection-container {
-    background: rgba(52, 73, 94, 0.2);
-    border-radius: 8px;
-    border-left: 5px solid;
-    margin-bottom: 20px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.subsection-container:first-of-type {
-    border-left-color: #00d4ff;
-    background: rgba(0, 212, 255, 0.08);
-}
-
-.subsection-container:last-of-type {
-    border-left-color: #ff6b35;
-    background: rgba(255, 107, 53, 0.08);
-}
-
-.subsection-header {
-    background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
-    padding: 10px 16px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-}
-
-.subsection-container:last-of-type .subsection-header {
-    background: linear-gradient(135deg, #ff6b35 0%, #e55a2b 100%);
-}
-
-.subsection-title {
-    margin: 0;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: #ffffff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.subsection-content {
-    padding: 16px;
-}
-
-/* Custom Scrollbar */
-.control-panel-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.control-panel-container::-webkit-scrollbar-track {
-    background: #ecf0f1;
-    border-radius: 4px;
-}
-
-.control-panel-container::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    border-radius: 4px;
-    transition: all 0.3s ease;
-}
-
-.control-panel-container::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
-}
-
-/* Control Panel Border Glow Effect */
-.control-panel-container::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, #3498db, #2980b9, #3498db, #2980b9);
-    border-radius: 14px;
-    z-index: -1;
-    animation: borderGlow 3s ease-in-out infinite alternate;
-}
-
-@keyframes borderGlow {
-    0% { opacity: 0.6; }
-    100% { opacity: 1; }
-}
-
-/* Control Panel Header Styling */
-.control-panel-header {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
-    border-bottom: 2px solid #3498db;
-    position: relative;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    font-weight: 600;
-    padding: 8px 16px;
-}
-
-.control-panel-header::before {
-    content: '';
-    position: absolute;
-    left: 0;
+/* Fixed Progress Indicator Styles */
+.fixed-progress-container {
+    position: fixed;
     top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(to bottom, #3498db 0%, #2980b9 100%);
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 20px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(102, 126, 234, 0.2);
 }
 
-.control-panel-header h5 {
-    font-size: 0.8rem;
-    font-weight: 700;
-    margin: 0;
-    color: #ecf0f1;
+/* Progress Indicator Styles */
+.progress-container {
+    margin-bottom: 0;
 }
 
-/* Control Panel Cards */
-.control-panel-container .card {
-    border: 1px solid #34495e;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    overflow: hidden;
-    margin-bottom: 12px;
-    transition: all 0.3s ease;
+.progress {
+    height: 8px;
+    border-radius: 4px;
+    background-color: #e9ecef;
 }
 
-.control-panel-container .card:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.progress-bar {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.3s ease;
 }
 
-.control-panel-container .card-body {
-    background-color: #f8f9fa;
-    border-top: 1px solid #dee2e6;
-    padding: 12px 16px;
-}
-
-/* Ensure proper spacing for the last card */
-.control-panel-container .card:last-of-type {
-    margin-bottom: 8px;
-}
-
-/* Card Styles */
-.card {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    margin-bottom: 20px;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.card-header {
-    border-radius: 12px 12px 0 0 !important;
-    border: none;
-    padding: 16px 20px;
-}
-
-.card-body {
-    padding: 24px 20px;
-}
-
-.card-title {
-    font-size: 1.1rem;
+.step-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
     font-weight: 600;
 }
 
-/* Form and Slider Styles */
-.form-label {
-    font-weight: 500;
-    color: #495057;
-    margin-bottom: 8px;
-    font-size: 0.95rem;
+.step-label {
+    color: #6c757d;
+    transition: color 0.3s ease;
 }
 
-/* ================================
-   SLIDER & FORM CONTROLS
-   ================================ */
+.step-label.active {
+    color: #667eea;
+}
+
+/* Wizard Step Styles */
+.wizard-step {
+    display: none;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.wizard-step.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form Styles */
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.75rem;
+}
+
+/* Slider Styles */
+.slider-container {
+    position: relative;
+    margin-bottom: 1rem;
+}
 
 .form-range {
-    height: 6px;
-    background: linear-gradient(to right, #34495e 0%, #2c3e50 100%);
-    border-radius: 4px;
-    outline: none;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
     -webkit-appearance: none;
     appearance: none;
-    border: 1px solid #2c3e50;
-    margin: 8px 0;
+    background: transparent;
+    outline: none;
 }
 
 .form-range::-webkit-slider-thumb {
+    background: linear-gradient(45deg, #667eea, #764ba2) !important;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     -webkit-appearance: none;
     appearance: none;
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    cursor: pointer;
-    border: 2px solid #ecf0f1;
-    box-shadow: 0 2px 6px rgba(52, 152, 219, 0.4);
-    transition: all 0.2s ease;
-}
-
-.form-range::-webkit-slider-thumb:hover {
-    transform: scale(1.1);
-    box-shadow: 0 3px 8px rgba(52, 152, 219, 0.6);
-    background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
+    margin-top: -7px; /* Centers the thumb on the track */
 }
 
 .form-range::-moz-range-thumb {
-    height: 20px;
-    width: 20px;
+    background: linear-gradient(45deg, #667eea, #764ba2) !important;
+    border: none;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    width: 20px;
+    height: 20px;
     cursor: pointer;
-    border: 2px solid #ecf0f1;
-    box-shadow: 0 2px 6px rgba(52, 152, 219, 0.4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    -moz-appearance: none;
+    appearance: none;
 }
 
-/* Value Display Styles */
-#renewables-value,
-#traditional-value,
-#ramp-rate-value,
-#battery-capacity-value,
-#discharge-rate-value {
+.form-range::-webkit-slider-track {
+    background: #4299e1 !important;
+    background-color: #4299e1 !important;
+    height: 6px;
+    border-radius: 3px;
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    outline: none;
+}
+
+.form-range::-webkit-slider-runnable-track {
+    background: #4299e1 !important;
+    background-color: #4299e1 !important;
+    height: 6px;
+    border-radius: 3px;
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    outline: none;
+}
+
+.form-range::-moz-range-track {
+    background: #4299e1 !important;
+    background-color: #4299e1 !important;
+    height: 6px;
+    border-radius: 3px;
+    border: none;
+    outline: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.form-range::-ms-track {
+    background: #4299e1 !important;
+    background-color: #4299e1 !important;
+    height: 6px;
+    border-radius: 3px;
+    border: none;
+    outline: none;
+}
+
+.slider-value {
+    text-align: center;
     font-weight: 600;
-    color: #007bff;
-}
-
-/* Section-specific Header Colors */
-.bg-success {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
-}
-
-.bg-primary {
-    background: linear-gradient(135deg, #007bff 0%, #6f42c1 100%) !important;
-}
-
-.bg-warning {
-    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+    color: #667eea;
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
 }
 
 /* Button Styles */
 .btn-primary {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: linear-gradient(45deg, #667eea, #764ba2);
     border: none;
-    padding: 12px 32px;
-    font-weight: 500;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    padding: 12px 30px;
+    font-weight: 600;
+    border-radius: 25px;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
-    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
-.btn-primary:active {
-    transform: translateY(0);
-}
-
-/* ================================
-   BUTTONS & INTERACTIVE ELEMENTS
-   ================================ */
-#run-simulation-btn {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    border: 3px solid #2c3e50;
-    padding: 16px 48px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    border-radius: 10px;
-    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    width: 100%;
-    position: relative;
-}
-
-#run-simulation-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
-    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
-    border-color: #17a2b8;
-}
-
-#run-simulation-btn:active {
-    transform: translateY(-1px);
-}
-
-/* Button Glow Effect */
-#run-simulation-btn::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, #28a745, #20c997, #28a745, #20c997);
-    border-radius: 12px;
-    z-index: -1;
-    opacity: 0.7;
-    animation: buttonGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes buttonGlow {
-    0% { opacity: 0.5; }
-    100% { opacity: 0.9; }
-}
-
-/* Range Min/Max Labels */
-.text-muted {
-    font-size: 0.8rem;
-    color: #6c757d !important;
-}
-
-/* ================================
-   RESPONSIVE DESIGN
-   ================================ */
-
-@media (max-width: 768px) {
-    .card {
-        margin-bottom: 20px;
-    }
-    
-    .card-body {
-        padding: 16px;
-    }
-    
-    h1 {
-        font-size: 1.8rem;
-    }
-    
-    .btn-lg {
-        padding: 10px 24px;
-        font-size: 1rem;
-    }
-}
-
-/* ================================
-   ANIMATIONS & TRANSITIONS
-   ================================ */
-.value-change {
-    animation: highlightChange 0.3s ease;
-}
-
-@keyframes highlightChange {
-    0% { background-color: rgba(0, 123, 255, 0.2); }
-    100% { background-color: transparent; }
-}
-
-/* ================================
-   LOADING OVERLAY STYLES
-   ================================ */
-.simulation-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(44, 62, 80, 0.95);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(5px);
-    border-radius: 12px;
-}
-
-.simulation-overlay.show {
-    display: flex;
-}
-
-.overlay-content {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    padding: 40px 50px;
-    border-radius: 20px;
-    box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.4),
-        0 8px 16px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    border: 2px solid #e9ecef;
-}
-
-.overlay-content h3 {
-    color: #2c3e50;
-    margin-bottom: 20px;
+.btn-secondary {
+    background: #6c757d;
+    border: none;
+    padding: 12px 30px;
     font-weight: 600;
-    font-size: 1.5rem;
+    border-radius: 25px;
+    transition: all 0.3s ease;
 }
 
-.simulation-spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid #e9ecef;
-    border-top: 4px solid #3498db;
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.btn-success {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: none;
+    padding: 12px 30px;
+    font-weight: 600;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .wizard-content {
+        padding-top: 155px; /* Extra space for mobile progress bar + 15px margin */
+        padding-bottom: 15px;
+        min-height: calc(100vh - 170px);
+    }
+    
+    .wizard-card {
+        padding: 20px;
+        margin: 10px;
+        height: auto;
+        min-height: fit-content;
+    }
+    
+    .fixed-progress-container {
+        padding: 15px 0;
+    }
+    
+    .step-labels {
+        font-size: 0.75rem;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .btn:not(:last-child) {
+        margin-right: 0 !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .step-labels {
+        font-size: 0.7rem;
+    }
+    
+    .progress-container {
+        padding: 0 10px;
+    }
+}
+
+/* Error Message Styles */
+.text-danger {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Step Title Styles */
+h2 {
+    color: #343a40;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+/* Subsection Styles */
+.subsection {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 25px;
+    border-left: 4px solid #667eea;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.subsection:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.subsection-title {
+    color: #495057;
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.subsection-title::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
     border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 20px;
+    margin-right: 12px;
+    display: inline-block;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+/* Simulator Styles */
+.baseline-info {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid #e9ecef;
+    height: fit-content;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.baseline-info .text-center {
+    margin-top: auto;
+    padding-top: 0.5rem;
+}
+
+.baseline-title {
+    color: #343a40;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 0.5rem;
+}
+
+.info-section {
+    margin-bottom: 1rem;
+}
+
+.info-section-title {
+    color: #495057;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #6c757d;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.info-value {
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.simulation-params {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.simulation-title {
+    color: #343a40;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+/* Tab Styles */
+.nav-tabs {
+    border-bottom: 2px solid #e9ecef;
+    margin-bottom: 1rem;
+}
+
+.nav-tabs .nav-link {
+    color: #6c757d;
+    font-weight: 500;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #667eea;
+    border-color: transparent;
+    background: none;
+}
+
+.nav-tabs .nav-link.active {
+    color: #667eea;
+    background: none;
+    border-color: #667eea;
+    font-weight: 600;
+}
+
+.tab-content-inner {
+    padding: 0;
+    height: auto;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Parameters Section - Top 40% */
+.parameters-section {
+    flex: 0 0 40%;
+    height: 120px;
+}
+
+/* Smaller slider styling for parameters */
+.slider-container-small {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.slider-value-small {
+    text-align: center;
+    font-weight: 600;
+    color: #667eea;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.form-label.small {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+
+
+/* Run Simulation Button */
+.btn-run-simulation {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: none;
+    padding: 12px 40px;
+    font-weight: 600;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-run-simulation:hover {
+    background: linear-gradient(45deg, #218838, #1e7e34);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+/* Responsive adjustments for simulator */
+@media (max-width: 768px) {
+    .baseline-info {
+        margin-bottom: 2rem;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .tab-content-inner {
+        padding: 0.5rem 0.25rem;
+        min-height: 100px;
+    }
 }
