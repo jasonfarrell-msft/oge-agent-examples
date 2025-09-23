@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
     paths:
-      #- 'grid-event-simulator/backend_app/**'
+      - 'grid-event-simulator/simulator-api/**'
       - 'grid-event-simulator/website/**'
       - '.github/workflows/grid-event-simulator.actions.yaml'
 
@@ -16,34 +16,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      #- name: Setup .NET for API
-      #  uses: actions/setup-dotnet@v4
-      #  with:
-      #    dotnet-version: '8.0.x'
+      - name: Setup .NET for API
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
       
-      #- name: Restore and build API
-      #  run: |
-      #    dotnet restore
-      #    dotnet build --configuration Release
-      #  working-directory: demand-forecast/backend_app
+      - name: Restore and build API
+        run: |
+          dotnet restore
+          dotnet build --configuration Release
+        working-directory: grid-event-simulator/simulator-api/src
 
-      #- name: Publish API
-      #  run: |
-      #    dotnet publish --configuration Release --output ./publish
-      #    cd ./publish
-      #    zip -r ../deploy.zip .
-      #  working-directory: demand-forecast/backend_app
+      - name: Publish API
+        run: |
+          dotnet publish --configuration Release --output ./publish
+          cd ./publish
+          zip -r ../deploy.zip .
+        working-directory: grid-event-simulator/simulator-api/src
 
-      #- name: Azure Login
-      #  uses: azure/login@v1
-      #  with:
-      #    creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      #- name: Deploy to Azure Functions
-      #  uses: Azure/functions-action@v1
-      #  with:
-      #    app-name: 'func-multiagent-eus2-mx01'
-      #    package: 'demand-forecast/backend_app/deploy.zip'
+      - name: Deploy API to App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'app-orch-multi-agent-eus2-mx01'
+          package: 'grid-event-simulator/simulator-api/src/deploy.zip'
 
       - name: Build And Deploy Frontend
         id: builddeploy
