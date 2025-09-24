@@ -49,6 +49,8 @@ public class DefaultRunSimulationService(IConfiguration configuration, ILogger<D
 
         var runtime = new InProcessRuntime();
         await runtime.StartAsync();
+
+        
 #pragma warning restore SKEXP0110
 
         return "Simulation completed successfully";
