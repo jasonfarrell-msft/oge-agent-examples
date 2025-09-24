@@ -15,7 +15,8 @@ public class DefaultRunSimulationService(IConfiguration configuration, ILogger<D
         builder.AddAzureOpenAIChatCompletion(
             deploymentName: "gpt-5-mini-deployment",
             endpoint: "https://orch-multi-agent-resource.cognitiveservices.azure.com",
-            apiKey: string.Empty);
+            apiKey: configuration["API_KEY"] ?? throw new Exception("API_KEY is required"));
+
         
         var kernel = builder.Build();
         var demandAgent = new ChatCompletionAgent
