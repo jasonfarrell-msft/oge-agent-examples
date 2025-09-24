@@ -20,26 +20,8 @@ namespace GridSimulator.Api.Controllers
         {
             // Log the received request for debugging
             _logger.LogInformation("Received request: {Request}", JsonSerializer.Serialize(request));
-            
-            // Validate that the model binding worked
-            if (request == null)
-            {
-                _logger.LogWarning("Request model is null - model binding failed");
-                return BadRequest("Request model is null");
-            }
 
-            // Return the bound model to verify values
-            return new OkObjectResult(new
-            {
-                RenewableOutput = request.RenewableOutputInMW,
-                TraditionalOutput = request.TraditionalOutputInMW,
-                TraditionalRampRate = request.TraditionalRampRateInMin,
-                BatteryCharge = request.BatteryChargeInMW,
-                BatteryDischargeRate = request.BatteryDischargeInMW,
-                ResidentialCustomers = request.NumberOfResidentialCustomers,
-                CommercialCustomers = request.NumberOfCommercialCustomers,
-                Parameters = request.Parameters
-            });
+            return Ok(request);
         }
     }
 }

@@ -1,54 +1,72 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
-namespace GridSimulator.Api.Models
+namespace GridSimulator.Api.Models;
+
+public record RunSimulationRequestModel
 {
-    public class RunSimulationRequestModel
-    {
-        [JsonPropertyName("renewable_output")]
-        public int RenewableOutputInMW { get; init; }
+    [JsonPropertyName("baseline")]
+    public BaselineGenerationParameters BaselineGenerationParameters { get; init; }
+    
+    [JsonPropertyName("demand")]
+    public DemandConfigurationParameters DemandConfigurationParameters { get; init; }
+}
 
-        [JsonPropertyName("traditional_output")]
-        public int TraditionalOutputInMW { get; init; }
+public record BaselineGenerationParameters
+{
+    [JsonPropertyName("current_output")]
+    public int CurrentOutput { get; init; }
+    
+    [JsonPropertyName("max_output")]
+    public int MaxOutput { get; init; }
+    
+    [JsonPropertyName("ramp_rate")]
+    public int RampRate { get; init; }
+    
+    [JsonPropertyName("battery_capacity")]
+    public int BatteryCapacity { get; init; }
+    
+    [JsonPropertyName("charge_percent")]
+    public int ChargePercent { get; init; }
+    
+    [JsonPropertyName("discharge_rate")]
+    public int BatteryDischargeRate { get; init; }
+}
 
-        [JsonPropertyName("traditional_ramp_rate")]
-        public int TraditionalRampRateInMin { get; init; }
-        
-        [JsonPropertyName("battery_charge")]
-        public int BatteryChargeInMW { get; init; }
+public record DemandConfigurationParameters
+{
+    [JsonPropertyName("residential_customers")]
+    public int ResidentialCustomers { get; init; }
+    
+    [JsonPropertyName("commercial_customers")]
+    public int CommercialCustomers { get; init; }
+    
+    [JsonPropertyName("current_temperature")]
+    public int CurrentTemperature { get; init; }
+}
 
-        [JsonPropertyName("battery_discharge_rate")]
-        public int BatteryDischargeInMW { get; init; }
+public record SimulationParameters
+{
+    [JsonPropertyName("demand_increase")]
+    public DemandIncreaseParameters? DemandIncreaseParameters { get; init; }
+    
+    [JsonPropertyName("output_reduction")]
+    public OutputReductionParameters? OutputReductionParameters { get; init; }
+}
 
-        [JsonPropertyName("number_of_residential_customers")]
-        public int NumberOfResidentialCustomers { get; init; }
+public record DemandIncreaseParameters
+{
+    [JsonPropertyName("peak_temperature")]
+    public int PeakTemperature { get; init; }
+    
+    [JsonPropertyName("time_to_peak")]
+    public int TimeToPeak { get; init; }
+    
+    [JsonPropertyName("peak_duration")]
+    public int PeakDuration { get; init; }
+}
 
-        [JsonPropertyName("number_of_commercial_customers")]
-        public int NumberOfCommercialCustomers { get; init; }
-        
-        [JsonPropertyName("parameters")]
-        public required SimulationParameters Parameters { get; init; }
-    }
-
-    public class SimulationParameters
-    {
-        [JsonPropertyName("cloud_cover_increase_percentage")]
-        public int CloudCoverIncreasePercentage { get; init; }
-
-        [JsonPropertyName("temperature_increase_degrees")]
-        public int TemperatureIncreaseDegrees { get; init; }
-
-        [JsonPropertyName("wind_speed_decrease_percentage")]
-        public int WindSpeedDecreasePercentage { get; init; }
-
-        [JsonPropertyName("traditional_output_decrease_percentage")]
-        public int TraditionalOutputDecreasePercentage { get; init; }
-
-        [JsonPropertyName("renewable_output_decrease_percentage")]
-        public int RenewableOutputDecreasePercentage { get; init; }
-    }
+public record OutputReductionParameters
+{
+    [JsonPropertyName("reduce_output")]
+    public bool ReduceOutput { get; init; }
 }

@@ -17,9 +17,11 @@ const maxOutputValue = document.getElementById('maxOutputValue');
 const rampRateValue = document.getElementById('rampRateValue');
 
 // Battery sliders - Step 1
+const batteryCapacitySlider = document.getElementById('batteryCapacity');
 const batteryChargeSlider = document.getElementById('batteryCharge');
 const dischargeRateSlider = document.getElementById('dischargeRate');
 
+const batteryCapacityValue = document.getElementById('batteryCapacityValue');
 const batteryChargeValue = document.getElementById('batteryChargeValue');
 const dischargeRateValue = document.getElementById('dischargeRateValue');
 
@@ -69,6 +71,7 @@ function setupEventListeners() {
     currentOutputSlider.addEventListener('input', updateCurrentOutputValue);
     maxOutputSlider.addEventListener('input', updateMaxOutputValue);
     rampRateSlider.addEventListener('input', updateRampRateValue);
+    batteryCapacitySlider.addEventListener('input', updateBatteryCapacityValue);
     batteryChargeSlider.addEventListener('input', updateBatteryChargeValue);
     dischargeRateSlider.addEventListener('input', updateDischargeRateValue);
 
@@ -97,6 +100,12 @@ function setupEventListeners() {
     runSimulationButtons.forEach(button => {
         button.addEventListener('click', handleRunSimulation);
     });
+    
+    // View Results button
+    const viewResultsBtn = document.getElementById('viewResultsBtn');
+    if (viewResultsBtn) {
+        viewResultsBtn.addEventListener('click', handleViewResults);
+    }
 
     // Real-time validation
     currentOutputSlider.addEventListener('input', validateOutputs);
@@ -116,6 +125,10 @@ function updateMaxOutputValue() {
 
 function updateRampRateValue() {
     rampRateValue.textContent = rampRateSlider.value;
+}
+
+function updateBatteryCapacityValue() {
+    batteryCapacityValue.textContent = batteryCapacitySlider.value;
 }
 
 function updateBatteryChargeValue() {
@@ -172,6 +185,7 @@ function updateSliderValues() {
     updateCurrentOutputValue();
     updateMaxOutputValue();
     updateRampRateValue();
+    updateBatteryCapacityValue();
     updateBatteryChargeValue();
     updateDischargeRateValue();
     
@@ -252,7 +266,8 @@ function updateBaselineDisplay() {
     document.getElementById('displayCurrentOutput').textContent = `${currentOutputSlider.value} MW`;
     document.getElementById('displayMaxOutput').textContent = `${maxOutputSlider.value} MW`;
     document.getElementById('displayRampRate').textContent = `${rampRateSlider.value} minutes`;
-    document.getElementById('displayBatteryCharge').textContent = `${batteryChargeSlider.value} MW`;
+    document.getElementById('displayBatteryCapacity').textContent = `${batteryCapacitySlider.value} MW`;
+    document.getElementById('displayBatteryCharge').textContent = `${batteryChargeSlider.value}%`;
     document.getElementById('displayDischargeRate').textContent = `${dischargeRateSlider.value} MW`;
     
     // Update Demand values
@@ -274,82 +289,105 @@ function updatePeakTemperatureMinimum() {
 }
 
 // Handle simulation runs
-function handleRunSimulation(event) {
+async function handleRunSimulation(event) {
     const button = event.target;
     const activeTab = document.querySelector('.tab-pane.active');
-    const simulationType = activeTab.id === 'demand-spike' ? 'Demand Spike' : 'Output Reduction';
+    const isDemandSpike = activeTab.id === 'demand-spike';
     
-    // Collect current data
-    const simulationData = {
-        type: simulationType,
-        baseline: {
-            currentOutput: parseInt(currentOutputSlider.value),
-            maxOutput: parseInt(maxOutputSlider.value),
-            rampRate: parseInt(rampRateSlider.value),
-            residential: parseInt(residentialSlider.value),
-            commercial: parseInt(commercialSlider.value),
-            temperature: parseInt(temperatureSlider.value)
-        },
-        parameters: {},
-        timestamp: new Date().toISOString()
-    };
+    // Get UI elements
+    const busyIndicator = document.getElementById('busyIndicator');
+    const viewResultsBtn = document.getElementById('viewResultsBtn');
+    const allButtons = document.querySelectorAll('button');
     
-    // Add simulation-specific parameters
-    if (simulationType === 'Demand Spike') {
-        simulationData.parameters = {
-            peakTemperature: parseInt(peakTemperatureSlider.value),
-            timeToPeak: parseInt(timeToPeakSlider.value),
-            duration: parseInt(durationSlider.value)
+    try {
+        // Disable all buttons and show busy indicator
+        allButtons.forEach(btn => btn.disabled = true);
+        busyIndicator.classList.remove('d-none');
+        viewResultsBtn.classList.add('d-none');
+        
+        // Clear any previous simulation results
+        window.simulationResult = null;
+        
+        // Build the request payload according to the schema
+        const requestData = {
+            baseline: {
+                current_output: parseInt(currentOutputSlider.value),
+                max_output: parseInt(maxOutputSlider.value),
+                ramp_rate: parseInt(rampRateSlider.value),
+                battery_capacity: parseInt(batteryCapacitySlider.value),
+                charge_percent: parseInt(batteryChargeSlider.value),
+                discharge_rate: parseInt(dischargeRateSlider.value)
+            },
+            demand: {
+                residential_customers: parseInt(residentialSlider.value),
+                commercial_customers: parseInt(commercialSlider.value),
+                current_temperature: parseInt(temperatureSlider.value)
+            },
+            simulation: {}
         };
-    }
-    
-    // Get the results window for this tab
-    const resultsWindow = simulationType === 'Demand Spike' ? 
-        document.getElementById('simulationResults') : 
-        document.getElementById('simulationResultsOutput');
-    
-    // Visual feedback
-    button.disabled = true;
-    button.textContent = 'Running...';
-    resultsWindow.innerHTML = '<p class="text-info m-0">Running simulation...</p>';
-    
-    // Simulate processing time
-    setTimeout(() => {
-        button.disabled = false;
-        button.textContent = 'Run Simulation';
         
-        // Log simulation data (in real app, would send to server)
-        console.log('Simulation executed:', simulationData);
-        
-        // Build results display
-        let resultsHTML = `<div class="text-success mb-2"><strong>${simulationType} Simulation Complete</strong></div>`;
-        resultsHTML += `<div class="mb-2">
-            <strong>Baseline Configuration:</strong><br>
-            • Current Output: ${simulationData.baseline.currentOutput} MW<br>
-            • Max Output: ${simulationData.baseline.maxOutput} MW<br>
-            • Residential: ${simulationData.baseline.residential.toLocaleString()} customers<br>
-            • Commercial: ${simulationData.baseline.commercial.toLocaleString()} customers<br>
-            • Temperature: ${simulationData.baseline.temperature}°F
-        </div>`;
-        
-        if (simulationType === 'Demand Spike' && simulationData.parameters) {
-            resultsHTML += `<div class="mb-2">
-                <strong>Spike Parameters:</strong><br>
-                • Peak Temperature: ${simulationData.parameters.peakTemperature}°F<br>
-                • Time to Peak: ${simulationData.parameters.timeToPeak} min<br>
-                • Duration: ${simulationData.parameters.duration} min
-            </div>`;
+        // Add the appropriate simulation parameters based on active tab
+        if (isDemandSpike) {
+            requestData.simulation.demand_increase = {
+                peak_temperature: parseInt(peakTemperatureSlider.value),
+                time_to_peak: parseInt(timeToPeakSlider.value),
+                peak_duration: parseInt(durationSlider.value)
+            };
+        } else {
+            requestData.simulation.output_reduction = {
+                reduce_output: parseInt(outputReductionSlider.value)
+            };
         }
         
-        resultsHTML += `<div class="mt-2 p-2 bg-light rounded">
-            <strong>Simulated Impact:</strong><br>
-            • Peak demand increase: +${Math.floor(Math.random() * 500) + 200} MW<br>
-            • Grid stability: ${Math.random() > 0.7 ? 'Stressed' : 'Maintained'}<br>
-            • Load shedding required: ${Math.random() > 0.6 ? 'Yes' : 'No'}
-        </div>`;
+        console.log('Sending simulation request:', requestData);
         
-        resultsWindow.innerHTML = resultsHTML;
-    }, 2000);
+        // Send POST request to the simulation endpoint
+        const response = await fetch('https://app-orch-multi-agent-eus2-mx01.azurewebsites.net/RunSimulation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('Simulation result:', result);
+        
+        // Hide busy indicator and show View Results button
+        busyIndicator.classList.add('d-none');
+        viewResultsBtn.classList.remove('d-none');
+        
+        // Store result data for the View Results button
+        window.simulationResult = result;
+        
+    } catch (error) {
+        console.error('Simulation request failed:', error);
+        
+        // Hide busy indicator
+        busyIndicator.classList.add('d-none');
+        
+        // Show error message
+        alert('Simulation failed: ' + error.message);
+        
+    } finally {
+        // Re-enable all buttons
+        allButtons.forEach(btn => btn.disabled = false);
+    }
+}
+
+// Handle view results button click
+function handleViewResults() {
+    if (window.simulationResult) {
+        // For now, display results in a modal or alert
+        // In a real application, this might navigate to a results page
+        alert('Simulation Results:\n\n' + JSON.stringify(window.simulationResult, null, 2));
+    } else {
+        alert('No simulation results available.');
+    }
 }
 
 // Add shake animation for validation errors
@@ -394,6 +432,8 @@ window.WizardApp = {
         currentOutput: parseInt(currentOutputSlider.value),
         maxOutput: parseInt(maxOutputSlider.value),
         rampRate: parseInt(rampRateSlider.value),
+        batteryCapacity: parseInt(batteryCapacitySlider.value),
+        batteryChargePercent: parseInt(batteryChargeSlider.value),
         // Step 2 data
         residential: parseInt(residentialSlider.value),
         commercial: parseInt(commercialSlider.value),

@@ -84,14 +84,26 @@
 
                                 <!-- Column 2: Battery Controls -->
                                 <div class="col-md-6">
-                                    <!-- Battery Charge -->
+                                    <!-- Battery Capacity -->
                                     <div class="mb-4">
-                                        <label for="batteryCharge" class="form-label">Battery Charge</label>
+                                        <label for="batteryCapacity" class="form-label">Battery Capacity</label>
+                                        <div class="slider-container">
+                                            <input type="range" class="form-range" id="batteryCapacity" 
+                                                   min="100" max="2000" step="100" value="400">
+                                            <div class="slider-value">
+                                                <span id="batteryCapacityValue">400</span> MW
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Battery Charge Percent -->
+                                    <div class="mb-4">
+                                        <label for="batteryCharge" class="form-label">Battery Charge Percent</label>
                                         <div class="slider-container">
                                             <input type="range" class="form-range" id="batteryCharge" 
-                                                   min="100" max="1000" step="50" value="100">
+                                                   min="0" max="100" step="5" value="25">
                                             <div class="slider-value">
-                                                <span id="batteryChargeValue">100</span> MW
+                                                <span id="batteryChargeValue">25</span>%
                                             </div>
                                         </div>
                                     </div>
@@ -200,8 +212,12 @@
                                     <div class="info-section mb-4">
                                         <h5 class="info-section-title">Battery</h5>
                                         <div class="info-item">
+                                            <span class="info-label">Battery Capacity:</span>
+                                            <span class="info-value" id="displayBatteryCapacity">400 MW</span>
+                                        </div>
+                                        <div class="info-item">
                                             <span class="info-label">Battery Charge:</span>
-                                            <span class="info-value" id="displayBatteryCharge">100 MW</span>
+                                            <span class="info-value" id="displayBatteryCharge">25%</span>
                                         </div>
                                         <div class="info-item">
                                             <span class="info-label">Discharge Rate:</span>
@@ -330,8 +346,22 @@
                             </div>
                         </div>
                         
+                        <!-- Busy Indicator and Results -->
+                        <div class="text-center mt-4" id="simulationStatus">
+                            <!-- Busy indicator (hidden by default) -->
+                            <div id="busyIndicator" class="d-none">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2 text-muted">Running simulation...</p>
+                            </div>
+                            
+                            <!-- View Results button (hidden by default) -->
+                            <button type="button" id="viewResultsBtn" class="btn btn-primary d-none">View Results</button>
+                        </div>
+                        
                         <!-- Navigation -->
-                        <div class="text-center mt-5">
+                        <div class="text-center mt-4">
                             <button type="button" id="prevStep3" class="btn btn-secondary me-2"><<< Previous</button>
                             <button type="button" class="btn btn-success btn-run-simulation">Run Simulation</button>
                         </div>
