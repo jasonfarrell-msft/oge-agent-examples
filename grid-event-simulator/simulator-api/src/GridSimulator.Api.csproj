@@ -1,12 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>f036f53b-9c44-41e7-9e49-cea90705c8cd</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.65.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.65.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Magentic" Version="1.65.0-preview" />
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI" Version="1.65.0" />
     <PackageReference Include="System.Text.Json" Version="9.0.9" />
   </ItemGroup>
