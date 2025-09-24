@@ -2,6 +2,7 @@ bin
 obj
 csx
 .vs
+.idea
 edge
 Publish
 
