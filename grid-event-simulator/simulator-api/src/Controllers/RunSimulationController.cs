@@ -12,13 +12,13 @@ namespace GridSimulator.Api.Controllers
         IRunSimulationService runSimulationService) : ControllerBase
     {
         [HttpPost]
-        public IActionResult Run([FromBody] RunSimulationRequestModel request)
+        public async Task<IActionResult> Run([FromBody] RunSimulationRequestModel request)
         {
             // Log the received request for debugging
             logger.LogInformation("Received request: {Request}", JsonSerializer.Serialize(request));
             
             // run the simulation with the given parameters
-            var result = runSimulationService.RunSimulationAsync(request);
+            var result = await runSimulationService.RunSimulationAsync(request);
 
             return Ok(result);
         }

@@ -1,59 +1,99 @@
-using Azure.AI.OpenAI;
 using GridSimulator.Api.Models;
-using Microsoft.JSInterop;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents;
-using Microsoft.SemanticKernel.Agents.Magentic;
-using Microsoft.SemanticKernel.Agents.Runtime.InProcess;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 namespace GridSimulator.Api.Services;
 
 public class DefaultRunSimulationService(IConfiguration configuration, ILogger<DefaultRunSimulationService> logger) : IRunSimulationService
 {
+    private ChatHistory chatHistory = [];
+    
     public async Task<string> RunSimulationAsync(RunSimulationRequestModel request)
     {
-        // create the demand agent
-        var demandAgent = new ChatCompletionAgent
+        try
         {
-            Name = "DemandAgent",
-            Instructions = Prompts.DemandAgentInstructions,
-            Kernel = Kernel.CreateBuilder()
+            logger.LogInformation("Starting simulation with {ResidentialCustomers} residential and {CommercialCustomers} commercial customers at {Temperature}°F", 
+                request.DemandConfigurationParameters.ResidentialCustomers,
+                request.DemandConfigurationParameters.CommercialCustomers,
+                request.DemandConfigurationParameters.CurrentTemperature);
+
+            var apiKey = configuration["API_KEY"];
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                throw new InvalidOperationException("API_KEY configuration is missing");
+            }
+
+            var sharedKernel = Kernel.CreateBuilder()
                 .AddAzureOpenAIChatCompletion(
                     deploymentName: "gpt-5-mini-deployment",
                     endpoint: "https://orch-multi-agent-resource.cognitiveservices.azure.com",
-                    apiKey: configuration["API_KEY"] ?? throw new Exception("API_KEY is required")).Build()
-        };
+                    apiKey: apiKey)
+                .Build();
+
+            var demandAgent = new ChatCompletionAgent
+            {
+                Name = "DemandAgent",
+                Instructions = Prompts.DemandAgentInstructions,
+                Kernel = sharedKernel
+            };
 
 #pragma warning disable SKEXP0110
-        var mainKernel = Kernel.CreateBuilder()
-            .AddAzureOpenAIChatCompletion(
-                deploymentName: "gpt-5-mini-deployment",
-                endpoint: "https://orch-multi-agent-resource.cognitiveservices.azure.com",
-                apiKey: configuration["API_KEY"] ?? throw new Exception("API_KEY is required")).Build();
-        var simulatorManager = new StandardMagenticManager(
-            mainKernel.GetRequiredService<IChatCompletionService>(),
-            new OpenAIPromptExecutionSettings());
+            
+            var groupChat = new AgentGroupChat(demandAgent);
 
-        var orchestration = new MagenticOrchestration(
-            manager: simulatorManager,
-            members: new[] { demandAgent })
-        {
-            ResponseCallback = (response) =>
+            var input = $@"Calculate the total electricity demand using these parameters:
+- Residential customers: {request.DemandConfigurationParameters.ResidentialCustomers}
+- Commercial customers: {request.DemandConfigurationParameters.CommercialCustomers}  
+- Current temperature: {request.DemandConfigurationParameters.CurrentTemperature}°F
+
+Provide only the final result in MW with two decimal places.";
+
+            groupChat.AddChatMessage(new ChatMessageContent(AuthorRole.User, input));
+
+            var responses = new List<ChatMessageContent>();
+            await foreach (var response in groupChat.InvokeAsync())
             {
-                logger.LogInformation("Orchestration response: {Response}", response);
-                return ValueTask.CompletedTask;
+                responses.Add(response);
+                
+                if (response.Role == AuthorRole.Assistant)
+                {
+                    break;
+                }
             }
-        };
 
-        var runtime = new InProcessRuntime();
-        await runtime.StartAsync();
+            var finalResponse = responses.LastOrDefault()?.Content ?? "No response received";
+            
+            return finalResponse;
 
-        
+            
 #pragma warning restore SKEXP0110
-
-        return "Simulation completed successfully";
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error occurred during simulation");
+            return $"Error: {ex.Message}";
+        }
+    }
+    
+    ValueTask responseCallback(ChatMessageContent response)
+    {
+        try 
+        {
+            chatHistory.Add(response);
+            var contentLength = response.Content?.Length ?? 0;
+            var truncatedContent = contentLength > 0 ? response.Content?.Substring(0, Math.Min(200, contentLength)) : "Empty";
+            logger.LogInformation("Agent Response - {Role} ({Author}): {Content}", 
+                response.Role, 
+                response.AuthorName ?? "Unknown", 
+                truncatedContent);
+            return ValueTask.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error in response callback");
+            return ValueTask.CompletedTask;
+        }
     }
 }
 

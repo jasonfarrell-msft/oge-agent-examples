@@ -37,7 +37,7 @@ public record DemandConfigurationParameters
     [JsonPropertyName("residential_customers")]
     public int ResidentialCustomers { get; init; }
     
-    [JsonPropertyName("commercial_customers")]
+    [JsonPropertyName("commerical_customers")]
     public int CommercialCustomers { get; init; }
     
     [JsonPropertyName("current_temperature")]
