@@ -48,6 +48,8 @@ const durationValue = document.getElementById('durationValue');
 // Form elements - Step 3 (Output Reduction)
 const outputReductionSlider = document.getElementById('outputReduction');
 const outputReductionValue = document.getElementById('outputReductionValue');
+const outputReductionDurationSlider = document.getElementById('outputReductionDuration');
+const outputReductionDurationValue = document.getElementById('outputReductionDurationValue');
 
 // Navigation buttons
 const nextStep1 = document.getElementById('nextStep1');
@@ -85,6 +87,7 @@ function setupEventListeners() {
     timeToPeakSlider.addEventListener('input', updateTimeToPeakValue);
     durationSlider.addEventListener('input', updateDurationValue);
     outputReductionSlider.addEventListener('input', updateOutputReductionValue);
+    outputReductionDurationSlider.addEventListener('input', updateOutputReductionDurationValue);
 
     // Navigation buttons
     nextStep1.addEventListener('click', () => validateAndNextStep(1));
@@ -180,6 +183,21 @@ function updateOutputReductionValue() {
     outputReductionValue.textContent = outputReductionSlider.value;
 }
 
+function updateOutputReductionDurationValue() {
+    const minutes = parseInt(outputReductionDurationSlider.value);
+    if (minutes >= 60) {
+        const hours = Math.floor(minutes / 60);
+        const remainingMinutes = minutes % 60;
+        if (remainingMinutes === 0) {
+            outputReductionDurationValue.textContent = `${hours} hour${hours > 1 ? 's' : ''}`;
+        } else {
+            outputReductionDurationValue.textContent = `${hours}h ${remainingMinutes}m`;
+        }
+    } else {
+        outputReductionDurationValue.textContent = `${minutes} min`;
+    }
+}
+
 function updateSliderValues() {
     // Step 1 values
     updateCurrentOutputValue();
@@ -199,6 +217,7 @@ function updateSliderValues() {
     updateTimeToPeakValue();
     updateDurationValue();
     updateOutputReductionValue();
+    updateOutputReductionDurationValue();
 }
 
 // Validation functions
@@ -335,7 +354,8 @@ async function handleRunSimulation(event) {
             };
         } else {
             requestData.simulation.output_reduction = {
-                reduce_output: parseInt(outputReductionSlider.value)
+                reduce_output: parseInt(outputReductionSlider.value),
+                duration: parseInt(outputReductionDurationSlider.value)
             };
         }
         

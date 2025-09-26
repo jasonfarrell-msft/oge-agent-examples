@@ -1,9 +1,11 @@
 using System.Text.Json;
+using GridSimulator.Api;
 using GridSimulator.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
+builder.Services.AddSingleton<IAgentFactory, AgentFactory>();
 builder.Services.AddTransient<IRunSimulationService, DefaultRunSimulationService>();
 
 builder.Services.AddControllers()

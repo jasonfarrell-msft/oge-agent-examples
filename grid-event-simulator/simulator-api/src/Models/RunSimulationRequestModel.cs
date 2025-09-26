@@ -71,5 +71,8 @@ public record DemandIncreaseParameters
 public record OutputReductionParameters
 {
     [JsonPropertyName("reduce_output")]
-    public bool ReduceOutput { get; init; }
+    public int ReduceOutputPercent { get; init; }
+
+    [JsonPropertyName("duration")]
+    public int ReductionDurationMinutes { get; init; }
 }
