@@ -9,6 +9,9 @@ public record RunSimulationRequestModel
     
     [JsonPropertyName("demand")]
     public DemandConfigurationParameters DemandConfigurationParameters { get; init; }
+    
+    [JsonPropertyName("simulation")]
+    public SimulationParameters SimulationParameters { get; init; }
 }
 
 public record BaselineGenerationParameters

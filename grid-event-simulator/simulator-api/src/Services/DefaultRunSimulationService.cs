@@ -2,6 +2,7 @@ using GridSimulator.Api.Models;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 namespace GridSimulator.Api.Services;
 
@@ -18,36 +19,64 @@ public class DefaultRunSimulationService(IConfiguration configuration, ILogger<D
                 request.DemandConfigurationParameters.CommercialCustomers,
                 request.DemandConfigurationParameters.CurrentTemperature);
 
-            var apiKey = configuration["API_KEY"];
-            if (string.IsNullOrEmpty(apiKey))
-            {
-                throw new InvalidOperationException("API_KEY configuration is missing");
-            }
-
+            var apiKey = configuration["API_KEY"] ?? throw new InvalidOperationException("API_KEY configuration is missing");
             var sharedKernel = Kernel.CreateBuilder()
                 .AddAzureOpenAIChatCompletion(
                     deploymentName: "gpt-5-mini-deployment",
                     endpoint: "https://orch-multi-agent-resource.cognitiveservices.azure.com",
-                    apiKey: apiKey)
+                    apiKey: apiKey,
+                    serviceId: "generative-service")
+                .AddAzureOpenAIChatCompletion(
+                    deploymentName: "o4-mini-deployment",
+                    endpoint: "https://orch-multi-agent-resource.cognitiveservices.azure.com",
+                    apiKey: apiKey,
+                    serviceId: "reasoning-service")
                 .Build();
 
             var demandAgent = new ChatCompletionAgent
             {
                 Name = "DemandAgent",
-                Instructions = Prompts.DemandAgentInstructions,
-                Kernel = sharedKernel
+                Instructions = Prompts.DemandCalculationAgentInstructions,
+                Kernel = sharedKernel,
+                Arguments = new KernelArguments(new OpenAIPromptExecutionSettings
+                {
+                    ServiceId = "generative-service"
+                })
             };
 
 #pragma warning disable SKEXP0110
             
             var groupChat = new AgentGroupChat(demandAgent);
 
-            var input = $@"Calculate the total electricity demand using these parameters:
-- Residential customers: {request.DemandConfigurationParameters.ResidentialCustomers}
-- Commercial customers: {request.DemandConfigurationParameters.CommercialCustomers}  
-- Current temperature: {request.DemandConfigurationParameters.CurrentTemperature}°F
+            var simulationCase = request.SimulationParameters.DemandIncreaseParameters != null ? "Demand Increase" : "Output Reduction";
+            var input = "Your goal is to create an action plan for handling the demand for electricity during a grid event.\n" +
+                        "The grid event can be one of the following:\n" +
+                        " - A spike in demand that will require an increase to the total electricity needed for a given duration\n" +
+                        " - A reduction in output that will reduce the amount of electricity provided to the grid\n" +
+                        $" For this simulation you will simulate a {simulationCase}\n\n" +
 
-Provide only the final result in MW with two decimal places.";
+                        " The following baseline parameters are available:\n" +
+                        $" - Current output: {request.BaselineGenerationParameters.CurrentOutput} MW\n" +
+                        $" - Max output: {request.BaselineGenerationParameters.MaxOutput} MW\n" +
+                        $" - Ramp rate (in minutes): {request.BaselineGenerationParameters.RampRate}/h\n" +
+                        $" - Battery capacity: {request.BaselineGenerationParameters.BatteryCapacity} MW\n" +
+                        $" - Battery Charge percent: {request.BaselineGenerationParameters.ChargePercent}%\n" +
+                        $" - Battery Discharge rate (in MW): {request.BaselineGenerationParameters.BatteryDischargeRate} every 30 minutes/h\n" +
+                        $" - Number of Residential customers: {request.DemandConfigurationParameters.ResidentialCustomers}\n" +
+                        $" - Number of Commercial customers: {request.DemandConfigurationParameters.CommercialCustomers}\n" +
+                        $" - Current temperature: {request.DemandConfigurationParameters.CurrentTemperature}°F" +
+                        "\n\n" +
+                        "In the case of Demand Increase, the following parameters are available:\n" +
+                        $" - Peak Temperature: ${request.SimulationParameters.DemandIncreaseParameters.PeakTemperature}°F" +
+                        $" - Time to Peak: ${request.SimulationParameters.DemandIncreaseParameters.TimeToPeak} minutes" +
+                        $" - Peak Duration: ${request.SimulationParameters.DemandIncreaseParameters.PeakDuration} minutes" +
+                        "\n\n" +
+                        "In the case of Output Reduction, the following parameters are available:\n" +
+                        $" - Reduce Output Percent: ${request.SimulationParameters.OutputReductionParameters.ReduceOutput}" +
+                        "\n\n" +
+                        "Respond with the following information\n" +
+                        " - The final demand in MW\n" +
+                        " - The final output in MW\n";
 
             groupChat.AddChatMessage(new ChatMessageContent(AuthorRole.User, input));
 
