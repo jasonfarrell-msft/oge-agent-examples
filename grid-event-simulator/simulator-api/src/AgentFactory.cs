@@ -4,28 +4,11 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 namespace GridSimulator.Api
 {
-    public class AgentFactory(IConfiguration configuration) : IAgentFactory
+    public class AgentFactory(IKernelFactory kernelFactory) : IAgentFactory
     {
         private Kernel? _sharedKernel;
 
-        private Kernel CreateKernel()
-        {
-            var apiKey = configuration["API_KEY"] ?? throw new InvalidOperationException("API_KEY configuration is missing");
-            return Kernel.CreateBuilder()
-                .AddAzureOpenAIChatCompletion(
-                    deploymentName: "gpt-5-mini-deployment",
-                    endpoint: "https://orch-multi-agent-resource.cognitiveservices.azure.com",
-                    apiKey: apiKey,
-                    serviceId: "generative-service")
-                .AddAzureOpenAIChatCompletion(
-                    deploymentName: "o4-mini-deployment",
-                    endpoint: "https://orch-multi-agent-resource.cognitiveservices.azure.com",
-                    apiKey: apiKey,
-                    serviceId: "reasoning-service")
-                .Build();
-        }
-
-        private Kernel SharedKernel => _sharedKernel ??= CreateKernel();
+        private Kernel SharedKernel => _sharedKernel ??= kernelFactory.GetKernel();
 
         public ChatCompletionAgent DemandCalculationAgent => new ChatCompletionAgent
         {

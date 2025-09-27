@@ -29,16 +29,9 @@ public class DefaultRunSimulationService(IConfiguration configuration, IAgentFac
             await foreach (var response in groupChat.InvokeAsync())
             {
                 responses.Add(response);
-                
-                if (response.Role == AuthorRole.Assistant)
-                {
-                    break;
-                }
             }
 
-            var finalResponse = responses.LastOrDefault()?.Content ?? "No response received";
-            
-            return finalResponse;
+            return responses.LastOrDefault()?.Content ?? "No response received";
 
             
 #pragma warning restore SKEXP0110
