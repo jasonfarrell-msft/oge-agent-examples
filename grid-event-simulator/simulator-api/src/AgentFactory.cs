@@ -12,7 +12,7 @@ namespace GridSimulator.Api
 
         public ChatCompletionAgent DemandCalculationAgent => new ChatCompletionAgent
         {
-            Name = "DemandACalculationAgent",
+            Name = "DemandCalculationAgent",
             Instructions = Prompts.DemandCalculationAgentInstructions,
             Kernel = SharedKernel,
             Arguments = new KernelArguments(new OpenAIPromptExecutionSettings
@@ -36,10 +36,11 @@ namespace GridSimulator.Api
         {
             Name = "ActionPlanAgent",
             Instructions = Prompts.ActionPlanAgentInstructions,
+            Kernel = SharedKernel,
             Arguments = new KernelArguments(new OpenAIPromptExecutionSettings
             {
                 ServiceId = "generative-service"
-            }),
+            })
         };
     }
 
