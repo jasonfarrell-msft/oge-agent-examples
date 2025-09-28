@@ -1,53 +1,61 @@
-﻿using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Agents;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
+﻿
+using Azure.AI.Agents.Persistent;
+using Azure.AI.OpenAI;
+using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
 
 namespace GridSimulator.Api
 {
-    public class AgentFactory(IKernelFactory kernelFactory) : IAgentFactory
+    public class AgentFactory(IConfiguration configuration) : IAgentFactory
     {
-        private Kernel? _sharedKernel;
+        IChatClient GetChatClient(string deploymentName) => new AzureOpenAIClient(
+                endpoint: new Uri("https://orch-multi-agent-resource.cognitiveservices.azure.com"),
+                credential: new System.ClientModel.ApiKeyCredential(configuration["API_KEY"] ?? throw new InvalidOperationException("API_KEY configuration is missing")),
+                options: new AzureOpenAIClientOptions())
+            .GetChatClient(deploymentName)
+            .AsIChatClient()
+            .AsBuilder()
+            .UseFunctionInvocation()
+            .Build();
 
-        private Kernel SharedKernel => _sharedKernel ??= kernelFactory.GetKernel();
-
-        public ChatCompletionAgent DemandCalculationAgent => new ChatCompletionAgent
-        {
-            Name = "DemandCalculationAgent",
-            Instructions = Prompts.DemandCalculationAgentInstructions,
-            Kernel = SharedKernel,
-            Arguments = new KernelArguments(new OpenAIPromptExecutionSettings
+        public AIAgent DemandCalculationAgent => new ChatClientAgent(
+            chatClient: GetChatClient("gpt-5-mini-deployment"), new ChatClientAgentOptions
             {
-                ServiceId = "generative-service"
-            })
-        };
+                Name = "DemandCalculationAgent",
+                Instructions = Prompts.DemandCalculationAgentInstructions,
+                Description = "Agent that calculates energy demand based on residential and commerical customer base and a temperature",
+            });
 
-        public ChatCompletionAgent GridAnalysisAgent => new ChatCompletionAgent
-        {
-            Name = "GridAnalysisAgent",
-            Instructions = Prompts.GridAnalysisAgentInstructions,
-            Kernel = SharedKernel,
-            Arguments = new KernelArguments(new OpenAIPromptExecutionSettings
+        public AIAgent GridAnalysisAgent => new ChatClientAgent(
+            chatClient: GetChatClient("o4-mini-deployment"), new ChatClientAgentOptions
             {
-                ServiceId = "reasoning-service"
-            })
-        };
+                Name = "GridAnalysisAgent",
+                Instructions = Prompts.GridAnalysisAgentInstructions,
+                Description = "Agent that analyzes the grid and provides recommendations to mitigate an energy shortage",
+            });
 
-        public ChatCompletionAgent ActionPlanAgent => new ChatCompletionAgent
-        {
-            Name = "ActionPlanAgent",
-            Instructions = Prompts.ActionPlanAgentInstructions,
-            Kernel = SharedKernel,
-            Arguments = new KernelArguments(new OpenAIPromptExecutionSettings
+        public AIAgent ActionPlanAgent => new ChatClientAgent(
+            chatClient: GetChatClient("gpt-5-mini-deployment"), new ChatClientAgentOptions
             {
-                ServiceId = "generative-service"
-            })
+                Name = "ActionPlanAgent",
+                Instructions = Prompts.ActionPlanAgentInstructions,
+                Description = "Agent that creates an action plan based on the analysis of the grid",
+            });
+
+        public AIAgent[] AllAgents => new[]
+        {
+            DemandCalculationAgent,
+            GridAnalysisAgent,
+            ActionPlanAgent
         };
     }
 
     public interface IAgentFactory
     {
-        ChatCompletionAgent DemandCalculationAgent { get; }
-        ChatCompletionAgent GridAnalysisAgent { get; }
-        ChatCompletionAgent ActionPlanAgent { get; }
+        AIAgent DemandCalculationAgent { get; }
+        AIAgent GridAnalysisAgent { get; }
+        AIAgent ActionPlanAgent { get; }
+
+        AIAgent[] AllAgents { get; }
     }
 }
