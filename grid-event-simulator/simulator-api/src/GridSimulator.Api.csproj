@@ -12,6 +12,7 @@
     <PackageReference Include="Azure.AI.OpenAI" Version="2.3.0-beta.2" />
     <PackageReference Include="Azure.Identity" Version="1.16.0" />
     <PackageReference Include="Microsoft.Agents.Orchestration" Version="0.0.1-nightly-250928.1-alpha" />
+    <PackageReference Include="Microsoft.Agents.Workflows" Version="0.0.1-nightly-250929.1-alpha" />
     <PackageReference Include="Microsoft.Extensions.AI.Agents" Version="0.0.1-nightly-250731.6-alpha" />
     <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.9.1-preview.1.25474.6" />
     <PackageReference Include="System.Text.Json" Version="9.0.9" />

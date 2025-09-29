@@ -1,28 +1,36 @@
+using GridSimulator.Api.Executors;
 using GridSimulator.Api.Models;
-using Microsoft.Agents.Orchestration;
+using Microsoft.Agents.Workflows;
+using Microsoft.Extensions.AI;
 
 namespace GridSimulator.Api.Services;
 
 public class DefaultRunSimulationService(IConfiguration configuration, IAgentFactory agentFactory,
     ILogger<DefaultRunSimulationService> logger) : IRunSimulationService
-{    
+{
     public async Task<string> RunSimulationAsync(RunSimulationRequestModel request)
     {
-        var orchestration = new SequentialOrchestration(agentFactory.AllAgents)
-        {
-            ResponseCallback = (response) =>
-            {
-                logger.LogInformation("Orchestration response: {Response}", response);
-                return ValueTask.CompletedTask;
-            }
-        };
+        var demandCalcExecutor = new DemandCalculationExecutor(agentFactory.DemandCalculationAgent);
+        var gridAnalysisExecutor = new GridAnalysisExecutor(agentFactory.GridAnalysisAgent);
+        var actionPlanExecutor = new ActionPlanExecutor(agentFactory.ActionPlanAgent);
 
-        var input = Prompts.GetOutputReductionSimulationInput(request);
-        var responseResult = await orchestration.RunAsync(input);
+        var workflow = new WorkflowBuilder(demandCalcExecutor)
+            //.AddEdge(demandCalcExecutor, gridAnalysisExecutor)
+            //.AddEdge(gridAnalysisExecutor, actionPlanExecutor)
+            .Build();
+
+        StreamingRun run = await InProcessExecution.StreamAsync(workflow,
+            input: new ChatMessage(ChatRole.User, Prompts.GetOutputReductionSimulationInput(request)));
+        await run.TrySendMessageAsync(new TurnToken(emitEvents: true));
+        await foreach (WorkflowEvent evt in run.WatchStreamAsync().ConfigureAwait(false))
+        {
+            if (evt is WorkflowOutputEvent outputEvent)
+            {
+                Console.WriteLine($"{outputEvent}");
+            }
+        }
 
         return string.Empty;
-
-        // reference: https://github.com/microsoft/agent-framework/blob/main/dotnet/samples/GettingStarted/AgentOrchestration/Orchestration/SequentialOrchestration_Multi_Agent.cs
     }
 }
 
