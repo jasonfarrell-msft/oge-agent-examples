@@ -1,10 +1,9 @@
 using System.ComponentModel;
 using GridSimulator.Api.Clients;
-using Microsoft.SemanticKernel;
 
 namespace GridSimulator.Api.Plugins;
 
-public class RatesPlugin(IRatesApiHttpClient ratesHttpClient)
+/*public class RatesPlugin(IRatesApiHttpClient ratesHttpClient)
 {
     [KernelFunction, Description("Get the current rate of electricity from the neighboring grid")]
     public async Task<decimal?> GetRatesAsync()
@@ -15,4 +14,4 @@ public class RatesPlugin(IRatesApiHttpClient ratesHttpClient)
         
         return responseModel.Rate;
     }
-}
+}*/

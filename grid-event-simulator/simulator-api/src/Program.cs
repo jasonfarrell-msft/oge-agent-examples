@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddSingleton<IAgentFactory, AgentFactory>();
-builder.Services.AddSingleton<IKernelFactory, KernelFactory>();
+//builder.Services.AddSingleton<IKernelFactory, KernelFactory>();
 builder.Services.AddTransient<IRunSimulationService, DefaultRunSimulationService>();
 
 builder.Services.AddHttpClient<IRatesApiHttpClient, RatesApiHttpClient>(options =>
