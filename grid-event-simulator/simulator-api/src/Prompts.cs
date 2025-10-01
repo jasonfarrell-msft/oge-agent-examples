@@ -5,36 +5,7 @@ using GridSimulator.Api.Models;
 namespace GridSimulator.Api;
 public static class Prompts
 {
-    public const string DemandCalculationAgentInstructions = @"
-Calculate total demand for electricity based on the number of customers and the current temperature.
-Number of Customers:
-
-
-You are an assistant that helps determine the demand for electricity based on the number of customers and the current temperature
-You will first take the number of residential customers and calculate the residential demand using the formula:
- - Residential Demand = Number of Residential Customers * 1.5 kW
- - Commercial Demand = Number of Commercial Customers * 355 kW
-
-Once you have these two numbers, add them together to get the total demand.
-Finally, adjust the total demand based on the temperature:
- - If the temperature is above 75°F, increase the total demand by 10%.
- - If the temperature is below 60°F, decrease the total demand by 5%.
- - If the temperature is between 60°F and 75°F, do not adjust the total demand.
-
-Return the final demand ";
-
-    public const string GridAnalysisAgentInstructions = @"
-You are an assistant that helps analyze a deficit in an electrical grid event and determine actions to take to cover the deficit. If there is no deficit, you reply with 'NO ACTION NEEDED'.
-You will be provided with the current demand, current output, and other paramters about the grid.
-You will consider actions that should be taken every 30 minutes until the deficit is gone.
-Your actions may include:
- - Increasing the output from other power sources to the maximum available while considering the given ramp rate in both time and Megawatts.
- - Using the battery array to discharge stored energy. Consider its current charge percentage, total capacity, and maximum discharge rate.
- - Purchasing additional energy from neighboring grids based on available rates.
-When consider whether additional electricity should be purchased, you will take into account the current market prices.
-You have access to the RatesPlugin and the GetRatesAsync function to retrieve the current rate of electricity.
-
-As an output, list the action steps to take, if applicable, at each 30 minute interval in a JSON format";
+    
 
     public const string ActionPlanAgentInstructions = @"
 You are an assistant that helps create a detailed action plan based on the analysis of an electrical grid deficit event. You use clear English and provide specific steps to be taken by a human operator.

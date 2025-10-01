@@ -23,15 +23,15 @@ namespace GridSimulator.Api
             chatClient: GetChatClient("gpt-5-mini-deployment"), new ChatClientAgentOptions
             {
                 Name = "DemandCalculationAgent",
-                Instructions = AgentInstructions.GetDemandCalculationAgentInstructions(request),
-                Description = "Agent that calculates energy demand based on residential and commercial customer base and a temperature",
+                Instructions = AgentInstructions.DemandCalculationAgentInstructions,
+                Description = "Agent that calculates energy demand based on residential and commercial customer based on temperature",
             });
 
         public AIAgent GridAnalysisAgent => new ChatClientAgent(
             chatClient: GetChatClient("o4-mini-deployment"), new ChatClientAgentOptions
             {
                 Name = "GridAnalysisAgent",
-                Instructions = Prompts.GridAnalysisAgentInstructions,
+                Instructions = AgentInstructions.GridAnalysisAgentInstructions,
                 Description = "Agent that analyzes the grid and provides recommendations to mitigate an energy shortage",
             });
 

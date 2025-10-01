@@ -10,12 +10,17 @@ public class DefaultRunSimulationService(IConfiguration configuration, IAgentFac
 {
     public async Task<string> RunSimulationAsync(RunSimulationRequestModel request)
     {
-        var demandCalcExecutor = new DemandCalculationExecutor(agentFactory.GetDemandCalculationAgent(request));
-        var gridAnalysisExecutor = new GridAnalysisExecutor(agentFactory.GridAnalysisAgent);
+        var demandCalcExecutor = new DemandCalculationExecutor(
+            agentFactory.GetDemandCalculationAgent(request),
+            request.DemandConfigurationParameters.ResidentialCustomers,
+            request.DemandConfigurationParameters.CommercialCustomers,
+            request.DemandConfigurationParameters.CurrentTemperature);
+        
+        var gridAnalysisExecutor = new GridAnalysisExecutor(agentFactory.GridAnalysisAgent, request);
         var actionPlanExecutor = new ActionPlanExecutor(agentFactory.ActionPlanAgent);
 
         var workflow = new WorkflowBuilder(demandCalcExecutor)
-            //.AddEdge(demandCalcExecutor, gridAnalysisExecutor)
+            .AddEdge(demandCalcExecutor, gridAnalysisExecutor)
             //.AddEdge(gridAnalysisExecutor, actionPlanExecutor)
             .Build();
 
