@@ -1,6 +1,7 @@
 ﻿
 using Azure.AI.Agents.Persistent;
 using Azure.AI.OpenAI;
+using GridSimulator.Api.Models;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 
@@ -18,12 +19,12 @@ namespace GridSimulator.Api
             .UseFunctionInvocation()
             .Build();
 
-        public AIAgent DemandCalculationAgent => new ChatClientAgent(
+        public AIAgent GetDemandCalculationAgent(RunSimulationRequestModel request) => new ChatClientAgent(
             chatClient: GetChatClient("gpt-5-mini-deployment"), new ChatClientAgentOptions
             {
                 Name = "DemandCalculationAgent",
-                Instructions = Prompts.DemandCalculationAgentInstructions,
-                Description = "Agent that calculates energy demand based on residential and commerical customer base and a temperature",
+                Instructions = AgentInstructions.GetDemandCalculationAgentInstructions(request),
+                Description = "Agent that calculates energy demand based on residential and commercial customer base and a temperature",
             });
 
         public AIAgent GridAnalysisAgent => new ChatClientAgent(
@@ -41,21 +42,12 @@ namespace GridSimulator.Api
                 Instructions = Prompts.ActionPlanAgentInstructions,
                 Description = "Agent that creates an action plan based on the analysis of the grid",
             });
-
-        public AIAgent[] AllAgents => new[]
-        {
-            DemandCalculationAgent,
-            GridAnalysisAgent,
-            ActionPlanAgent
-        };
     }
 
     public interface IAgentFactory
     {
-        AIAgent DemandCalculationAgent { get; }
+        AIAgent GetDemandCalculationAgent(RunSimulationRequestModel request);
         AIAgent GridAnalysisAgent { get; }
         AIAgent ActionPlanAgent { get; }
-
-        AIAgent[] AllAgents { get; }
     }
 }

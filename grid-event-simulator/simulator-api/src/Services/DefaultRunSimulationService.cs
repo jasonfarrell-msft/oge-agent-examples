@@ -1,6 +1,6 @@
 using GridSimulator.Api.Executors;
 using GridSimulator.Api.Models;
-using Microsoft.Agents.Workflows;
+using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 
 namespace GridSimulator.Api.Services;
@@ -10,7 +10,7 @@ public class DefaultRunSimulationService(IConfiguration configuration, IAgentFac
 {
     public async Task<string> RunSimulationAsync(RunSimulationRequestModel request)
     {
-        var demandCalcExecutor = new DemandCalculationExecutor(agentFactory.DemandCalculationAgent);
+        var demandCalcExecutor = new DemandCalculationExecutor(agentFactory.GetDemandCalculationAgent(request));
         var gridAnalysisExecutor = new GridAnalysisExecutor(agentFactory.GridAnalysisAgent);
         var actionPlanExecutor = new ActionPlanExecutor(agentFactory.ActionPlanAgent);
 
