@@ -10,22 +10,17 @@ public class DefaultRunSimulationService(IConfiguration configuration, IAgentFac
 {
     public async Task<string> RunSimulationAsync(RunSimulationRequestModel request)
     {
-        var demandCalcExecutor = new DemandCalculationExecutor(
-            agentFactory.GetDemandCalculationAgent(request),
-            request.DemandConfigurationParameters.ResidentialCustomers,
-            request.DemandConfigurationParameters.CommercialCustomers,
-            request.DemandConfigurationParameters.CurrentTemperature);
-        
-        var gridAnalysisExecutor = new GridAnalysisExecutor(agentFactory.GridAnalysisAgent, request);
+        var demandCalcExecutor = new DemandCalculationExecutor(agentFactory.DemandCalculationAgent);
+        var gridAnalysisExecutor = new GridAnalysisExecutor(agentFactory.GridAnalysisAgent);
         var actionPlanExecutor = new ActionPlanExecutor(agentFactory.ActionPlanAgent);
 
         var workflow = new WorkflowBuilder(demandCalcExecutor)
             .AddEdge(demandCalcExecutor, gridAnalysisExecutor)
             //.AddEdge(gridAnalysisExecutor, actionPlanExecutor)
+            //.WithOutputFrom(actionPlanExecutor)
             .Build();
 
-        StreamingRun run = await InProcessExecution.StreamAsync(workflow,
-            input: new ChatMessage(ChatRole.User, Prompts.GetOutputReductionSimulationInput(request)));
+        StreamingRun run = await InProcessExecution.StreamAsync(workflow, input: request);
         await run.TrySendMessageAsync(new TurnToken(emitEvents: true));
         await foreach (WorkflowEvent evt in run.WatchStreamAsync().ConfigureAwait(false))
         {

@@ -1,4 +1,5 @@
-﻿using Microsoft.Agents.AI;
+﻿using GridSimulator.Api.Models;
+using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Agents.AI.Workflows.Reflection;
 using Microsoft.Extensions.AI;
@@ -7,21 +8,18 @@ using System.Text.Json.Serialization;
 
 namespace GridSimulator.Api.Executors;
 
-internal sealed class DemandCalculationExecutor(AIAgent demandCalcAgent,
-    int numberOfResidents,
-    int numberOfCommercials,
-    int currentTemperature) : ReflectingExecutor<DemandCalculationExecutor>("DemandCalculationExecutor"),
-    IMessageHandler<ChatMessage, CalculatedDemandResult>
+internal sealed class DemandCalculationExecutor(AIAgent demandCalcAgent) : ReflectingExecutor<DemandCalculationExecutor>("DemandCalculationExecutor"),
+    IMessageHandler<RunSimulationRequestModel, CalculatedDemandResult>
 {
-    public async ValueTask<CalculatedDemandResult> HandleAsync(ChatMessage message, IWorkflowContext context)
+    public async ValueTask<CalculatedDemandResult> HandleAsync(RunSimulationRequestModel simulationRequest, IWorkflowContext context)
     {
         try
         {
             var response = await demandCalcAgent.RunAsync($@"
 Calculate the total demand using the following data:
- - Number of Residential Customers: {numberOfResidents}
- - Number of Commercial Customers: {numberOfCommercials}
- - Current Temperature: {currentTemperature}");
+ - Number of Residential Customers: {simulationRequest.DemandConfigurationParameters.ResidentialCustomers}
+ - Number of Commercial Customers: {simulationRequest.DemandConfigurationParameters.CommercialCustomers}
+ - Current Temperature: {simulationRequest.DemandConfigurationParameters.CurrentTemperature}");
 
             var responseText = response.Text;
             if (string.IsNullOrEmpty(responseText))

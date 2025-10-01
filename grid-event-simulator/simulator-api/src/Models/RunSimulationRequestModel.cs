@@ -54,6 +54,11 @@ public record SimulationParameters
     
     [JsonPropertyName("output_reduction")]
     public OutputReductionParameters? OutputReductionParameters { get; init; }
+
+    public SimulationType SimulationType =>
+        DemandIncreaseParameters is not null ? SimulationType.DemandSpike :
+        OutputReductionParameters is not null ? SimulationType.OutputReduction :
+        throw new Exception("Unknown Simulation Type");
 }
 
 public record DemandIncreaseParameters

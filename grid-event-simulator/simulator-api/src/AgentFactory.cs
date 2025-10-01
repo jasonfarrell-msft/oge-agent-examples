@@ -19,7 +19,7 @@ namespace GridSimulator.Api
             .UseFunctionInvocation()
             .Build();
 
-        public AIAgent GetDemandCalculationAgent(RunSimulationRequestModel request) => new ChatClientAgent(
+        public AIAgent DemandCalculationAgent => new ChatClientAgent(
             chatClient: GetChatClient("gpt-5-mini-deployment"), new ChatClientAgentOptions
             {
                 Name = "DemandCalculationAgent",
@@ -46,7 +46,7 @@ namespace GridSimulator.Api
 
     public interface IAgentFactory
     {
-        AIAgent GetDemandCalculationAgent(RunSimulationRequestModel request);
+        AIAgent DemandCalculationAgent { get; }
         AIAgent GridAnalysisAgent { get; }
         AIAgent ActionPlanAgent { get; }
     }
