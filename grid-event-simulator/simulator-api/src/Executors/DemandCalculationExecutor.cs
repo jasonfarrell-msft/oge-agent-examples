@@ -15,13 +15,18 @@ internal sealed class DemandCalculationExecutor(AIAgent demandCalcAgent) : Refle
     {
         try
         {
-            var response = await demandCalcAgent.RunAsync($@"
+            string responseText = string.Empty;         
+            if (simulationRequest.SimulationType == SimulationType.OutputReduction)
+            {
+                var response = await demandCalcAgent.RunAsync($@"
 Calculate the total demand using the following data:
  - Number of Residential Customers: {simulationRequest.DemandConfigurationParameters.ResidentialCustomers}
  - Number of Commercial Customers: {simulationRequest.DemandConfigurationParameters.CommercialCustomers}
  - Current Temperature: {simulationRequest.DemandConfigurationParameters.CurrentTemperature}");
 
-            var responseText = response.Text;
+                responseText = response.Text;
+            }
+
             if (string.IsNullOrEmpty(responseText))
                 throw new Exception("The response from the AI agent is empty.");
 
