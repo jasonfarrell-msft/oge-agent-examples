@@ -29,7 +29,7 @@ Calculate the total demand using the following data:
             throw new Exception("The response from the AI agent is empty.");
 
         var result = JsonSerializer.Deserialize<CalculatedDemandResult>(responseText) ?? throw new Exception("Failed to deserialize the AI response.");
-        await context.QueueStateUpdateAsync<CalculatedDemandResult>(Constants.DemandCalcKey, result);
+        await context.QueueStateUpdateAsync(Constants.DemandCalcKey, result, scopeName: "my-scope");
         
         return simulationRequest;
     }

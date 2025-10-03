@@ -13,25 +13,25 @@ public class DefaultRunSimulationService(IConfiguration configuration, IAgentFac
         var demandCalcExecutor = new DemandCalculationExecutor(agentFactory.DemandCalculationAgent);
         var outputCalcExecutor = new CalculateOutputExecutor();
         var gridAnalysisExecutor = new GridAnalysisAgentExecutor(agentFactory.GridAnalysisAgent);
-        var actionPlanAgent = agentFactory.ActionPlanAgent;
+        var actionPlanExecutor = new ActionPlanAgentExecutor(agentFactory.ActionPlanAgent);
 
         var workflow = new WorkflowBuilder(demandCalcExecutor)
             .AddEdge(demandCalcExecutor, outputCalcExecutor)
             .AddEdge(outputCalcExecutor, gridAnalysisExecutor)
-            //.AddEdge(gridAnalysisAgent, actionPlanAgent)
-            .WithOutputFrom(gridAnalysisExecutor)
+            .AddEdge(gridAnalysisExecutor, actionPlanExecutor)
+            .WithOutputFrom(actionPlanExecutor)
             .Build();
 
         var run = await InProcessExecution.StreamAsync(workflow, input: request);
         await foreach (WorkflowEvent evt in run.WatchStreamAsync().ConfigureAwait(false))
         {
-            if (evt is WorkflowOutputEvent output)
+            if (evt is WorkflowOutputEvent workflowComplete)
             {
-                Console.WriteLine($"Workflow completed with results:\n{output.Data}");
+                return workflowComplete.Data.ToString() ?? string.Empty;
             }
         }
 
-        return string.Empty;
+        throw new Exception("Workflow did not complete successfully.");
     }
 }
 

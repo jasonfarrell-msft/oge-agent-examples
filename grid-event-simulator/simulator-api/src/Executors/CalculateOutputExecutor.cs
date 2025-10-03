@@ -14,7 +14,7 @@ public class CalculateOutputExecutor() : ReflectingExecutor<CalculateOutputExecu
             MaxPowerOutput: requestModel.BaselineGenerationParameters.MaxOutput * ((decimal)requestModel.SimulationParameters.OutputReductionParameters.ReduceOutputPercent / 100)
         );
         
-        await context.QueueStateUpdateAsync(Constants.OutputCalcKey, outputCalcResult);
+        await context.QueueStateUpdateAsync(Constants.OutputCalcKey, outputCalcResult, scopeName: "my-scope");
         return requestModel;
     }
 }
