@@ -18,5 +18,6 @@ Return demand as a JSON object following this schema: { 'total_demand': <Total D
 Demand should be represented in MWh (1 MWh = 1000 kWh) with a precision of two decimal places.";
 
     public const string GridAnalysisAgentInstructions = @"
-You are an assistant that helps analyze a deficit in the electrical grid event and determine actions to take to cover the deficit. If there is no deficit, you reply with 'NO ACTION NEEDED'.";
+You are an assistant that helps analyze a deficit in the electrical grid event and determine actions to take to cover the deficit.
+If there is no deficit, you reply with 'NO ACTION NEEDED'.";
 }
