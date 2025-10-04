@@ -38,11 +38,9 @@ const temperatureValue = document.getElementById('temperatureValue');
 
 // Form elements - Step 3 (Demand Spike)
 const peakTemperatureSlider = document.getElementById('peakTemperature');
-const timeToPeakSlider = document.getElementById('timeToPeak');
 const durationSlider = document.getElementById('duration');
 
 const peakTemperatureValue = document.getElementById('peakTemperatureValue');
-const timeToPeakValue = document.getElementById('timeToPeakValue');
 const durationValue = document.getElementById('durationValue');
 
 // Form elements - Step 3 (Output Reduction)
@@ -84,7 +82,6 @@ function setupEventListeners() {
 
     // Step 3 slider value updates
     peakTemperatureSlider.addEventListener('input', updatePeakTemperatureValue);
-    timeToPeakSlider.addEventListener('input', updateTimeToPeakValue);
     durationSlider.addEventListener('input', updateDurationValue);
     outputReductionSlider.addEventListener('input', updateOutputReductionValue);
     outputReductionDurationSlider.addEventListener('input', updateOutputReductionDurationValue);
@@ -160,10 +157,6 @@ function updatePeakTemperatureValue() {
     peakTemperatureValue.textContent = peakTemperatureSlider.value;
 }
 
-function updateTimeToPeakValue() {
-    timeToPeakValue.textContent = timeToPeakSlider.value;
-}
-
 function updateDurationValue() {
     const minutes = parseInt(durationSlider.value);
     if (minutes >= 60) {
@@ -214,7 +207,6 @@ function updateSliderValues() {
     
     // Step 3 values
     updatePeakTemperatureValue();
-    updateTimeToPeakValue();
     updateDurationValue();
     updateOutputReductionValue();
     updateOutputReductionDurationValue();
@@ -349,7 +341,6 @@ async function handleRunSimulation(event) {
         if (isDemandSpike) {
             requestData.simulation.demand_increase = {
                 peak_temperature: parseInt(peakTemperatureSlider.value),
-                time_to_peak: parseInt(timeToPeakSlider.value),
                 peak_duration: parseInt(durationSlider.value)
             };
         } else {
