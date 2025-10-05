@@ -7,7 +7,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="app.css" rel="stylesheet">
+    <link href="app.css?v=1728071403" rel="stylesheet">
 </head>
 <body>
     <div class="container-fluid wizard-container">
@@ -31,11 +31,10 @@
             </div>
         </div>
         
-        <div class="row justify-content-center align-items-center min-vh-100 wizard-content">
-            <div class="col-11 col-lg-9 col-xl-8">
-                <div class="wizard-card">
+        <div class="wizard-content">
+            <div class="wizard-card">
 
-                    <!-- Step 1: Generation Baseline -->
+                <!-- Step 1: Generation Baseline -->
                     <div id="step1" class="wizard-step active">
                         <h2 class="mb-4 text-center">Generation Baseline</h2>
                         <form id="generationForm">
@@ -139,7 +138,7 @@
                                     <label for="residential" class="form-label"># of Residential Customers</label>
                                     <div class="slider-container">
                                         <input type="range" class="form-range" id="residential" 
-                                               min="10000" max="100000" step="10000" value="20000">
+                                               min="10000" max="200000" step="10000" value="20000">
                                         <div class="slider-value">
                                             <span id="residentialValue">20000</span> customers
                                         </div>
@@ -292,7 +291,7 @@
                                                             <label for="duration" class="form-label small">Duration</label>
                                                             <div class="slider-container-small">
                                                                 <input type="range" class="form-range" id="duration" 
-                                                                       min="30" max="240" step="15" value="30">
+                                                                       min="15" max="600" step="15" value="30">
                                                                 <div class="slider-value-small">
                                                                     <span id="durationValue">30</span>
                                                                 </div>
@@ -329,7 +328,7 @@
                                                             <label for="outputReductionDuration" class="form-label small">Duration</label>
                                                             <div class="slider-container-small">
                                                                 <input type="range" class="form-range" id="outputReductionDuration" 
-                                                                       min="30" max="720" step="30" value="60">
+                                                                       min="15" max="600" step="15" value="60">
                                                                 <div class="slider-value-small">
                                                                     <span id="outputReductionDurationValue">1 hour</span>
                                                                 </div>
@@ -342,22 +341,22 @@
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                    <!-- Busy Indicator and Results -->
+                                    <div class="text-center mt-3" id="simulationStatus">
+                                        <!-- Busy indicator (hidden by default) -->
+                                        <div id="busyIndicator" class="d-none">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mt-2 text-muted">Running simulation...</p>
+                                        </div>
+                                        
+                                        <!-- View Results button (hidden by default) -->
+                                        <button type="button" id="viewResultsBtn" class="btn btn-primary d-none">View Results</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <!-- Busy Indicator and Results -->
-                        <div class="text-center mt-4" id="simulationStatus">
-                            <!-- Busy indicator (hidden by default) -->
-                            <div id="busyIndicator" class="d-none">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                                <p class="mt-2 text-muted">Running simulation...</p>
-                            </div>
-                            
-                            <!-- View Results button (hidden by default) -->
-                            <button type="button" id="viewResultsBtn" class="btn btn-primary d-none">View Results</button>
                         </div>
                         
                         <!-- Navigation -->
@@ -367,6 +366,23 @@
                         </div>
                     </div>
                 </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="modal fade" id="resultsModal" tabindex="-1" aria-labelledby="resultsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resultsModalLabel">Simulation Results</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="resultsContent" class="markdown-content"></div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
@@ -374,6 +390,6 @@
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JavaScript -->
-    <script src="app.js"></script>
+    <script src="app.js?v=1728071403"></script>
 </body>
 </html>

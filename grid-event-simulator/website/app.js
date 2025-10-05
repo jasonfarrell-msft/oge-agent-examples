@@ -357,16 +357,27 @@ async function handleRunSimulation(event) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'text/plain, text/markdown, */*'
             },
             body: JSON.stringify(requestData)
         });
         
+        console.log('Response status:', response.status);
+        console.log('Response headers:', [...response.headers.entries()]);
+        
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
         }
         
-        const result = await response.json();
-        console.log('Simulation result:', result);
+        // Check the content type to make sure we're getting text
+        const contentType = response.headers.get('content-type');
+        console.log('Response content-type:', contentType);
+        
+        // Get the response as text (markdown) instead of JSON
+        const result = await response.text();
+        console.log('Simulation result (markdown):', result);
+        console.log('Response type:', typeof result);
         
         // Hide busy indicator and show View Results button
         busyIndicator.classList.add('d-none');
@@ -377,12 +388,13 @@ async function handleRunSimulation(event) {
         
     } catch (error) {
         console.error('Simulation request failed:', error);
+        console.error('Error stack:', error.stack);
         
         // Hide busy indicator
         busyIndicator.classList.add('d-none');
         
-        // Show error message
-        alert('Simulation failed: ' + error.message);
+        // Show error message with more details
+        alert('Simulation failed: ' + error.message + '\n\nCheck console for more details.');
         
     } finally {
         // Re-enable all buttons
@@ -393,12 +405,60 @@ async function handleRunSimulation(event) {
 // Handle view results button click
 function handleViewResults() {
     if (window.simulationResult) {
-        // For now, display results in a modal or alert
-        // In a real application, this might navigate to a results page
-        alert('Simulation Results:\n\n' + JSON.stringify(window.simulationResult, null, 2));
+        // Format the markdown content
+        const formattedContent = formatMarkdown(window.simulationResult);
+        
+        // Set the content in the modal
+        document.getElementById('resultsContent').innerHTML = formattedContent;
+        
+        // Show the modal
+        const resultsModal = new bootstrap.Modal(document.getElementById('resultsModal'));
+        resultsModal.show();
     } else {
         alert('No simulation results available.');
     }
+}
+
+// Simple markdown formatter function
+function formatMarkdown(markdown) {
+    let html = markdown;
+    
+    // Convert headers (##, ###, etc.)
+    html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+    html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+    html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+    
+    // Convert bold (**text** or __text__)
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+    
+    // Convert italic (*text* or _text_)
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+    
+    // Convert inline code (`code`)
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    
+    // Convert line breaks to paragraphs
+    html = html.replace(/\n\s*\n/g, '</p><p>');
+    html = '<p>' + html + '</p>';
+    
+    // Clean up empty paragraphs
+    html = html.replace(/<p><\/p>/g, '');
+    html = html.replace(/<p>\s*<h([1-6])>/g, '<h$1>');
+    html = html.replace(/<\/h([1-6])>\s*<\/p>/g, '</h$1>');
+    
+    // Convert unordered lists (both * and - notation)
+    html = html.replace(/^[\*\-] (.*$)/gim, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    
+    // Convert ordered lists
+    html = html.replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
+    
+    // Convert horizontal rules
+    html = html.replace(/^---$/gim, '<hr>');
+    
+    return html;
 }
 
 // Add shake animation for validation errors
