@@ -25,6 +25,17 @@ Calculate the total demand using the following data:
             responseText = response.Text;
         }
 
+        if (simulationRequest.SimulationType == SimulationType.DemandSpike)
+        {
+            var response = await demandCalcAgent.RunAsync($@"
+Calculate the total demand using the following data:
+ - Number of Residential Customers: {simulationRequest.DemandConfigurationParameters.ResidentialCustomers}
+ - Number of Commercial Customers: {simulationRequest.DemandConfigurationParameters.CommercialCustomers}
+ - Current Temperature: {simulationRequest.SimulationParameters.DemandIncreaseParameters.PeakTemperature}");
+
+            responseText = response.Text;
+        }
+
         if (string.IsNullOrEmpty(responseText))
             throw new Exception("The response from the AI agent is empty.");
 

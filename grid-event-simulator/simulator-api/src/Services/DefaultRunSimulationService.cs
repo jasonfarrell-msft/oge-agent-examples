@@ -27,7 +27,7 @@ public class DefaultRunSimulationService(IConfiguration configuration, IAgentFac
         {
             if (evt is WorkflowOutputEvent workflowComplete)
             {
-                return workflowComplete.Data.ToString() ?? string.Empty;
+                return workflowComplete.Data.ToString() ?? throw new Exception("Did not get a Workflow result.");
             }
         }
 

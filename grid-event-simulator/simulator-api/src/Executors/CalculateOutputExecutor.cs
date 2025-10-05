@@ -9,12 +9,25 @@ public class CalculateOutputExecutor() : ReflectingExecutor<CalculateOutputExecu
 {
     public async ValueTask<RunSimulationRequestModel> HandleAsync(RunSimulationRequestModel requestModel, IWorkflowContext context)
     {
-        var outputCalcResult = new CalculatedOutputResult(
-            CurrentPowerOutput: requestModel.BaselineGenerationParameters.CurrentOutput * ((decimal)requestModel.SimulationParameters.OutputReductionParameters.ReduceOutputPercent / 100),
-            MaxPowerOutput: requestModel.BaselineGenerationParameters.MaxOutput * ((decimal)requestModel.SimulationParameters.OutputReductionParameters.ReduceOutputPercent / 100)
-        );
-        
-        await context.QueueStateUpdateAsync(Constants.OutputCalcKey, outputCalcResult, scopeName: "my-scope");
+        if (requestModel.SimulationType == SimulationType.OutputReduction)
+        {
+            var outputCalcResult = new CalculatedOutputResult(
+                CurrentPowerOutput: requestModel.BaselineGenerationParameters.CurrentOutput * ((decimal)requestModel.SimulationParameters.OutputReductionParameters.ReduceOutputPercent / 100),
+                MaxPowerOutput: requestModel.BaselineGenerationParameters.MaxOutput * ((decimal)requestModel.SimulationParameters.OutputReductionParameters.ReduceOutputPercent / 100)
+            );
+
+            await context.QueueStateUpdateAsync(Constants.OutputCalcKey, outputCalcResult, scopeName: "my-scope");
+        }
+
+        if (requestModel.SimulationType == SimulationType.DemandSpike)
+        {
+            await context.QueueStateUpdateAsync(Constants.OutputCalcKey,
+                value: new CalculatedOutputResult(
+                    requestModel.BaselineGenerationParameters.CurrentOutput,
+                    requestModel.BaselineGenerationParameters.MaxOutput),
+                scopeName: "my-scope");
+        }
+
         return requestModel;
     }
 }

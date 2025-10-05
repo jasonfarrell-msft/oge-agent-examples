@@ -66,9 +66,6 @@ public record DemandIncreaseParameters
     [JsonPropertyName("peak_temperature")]
     public int PeakTemperature { get; init; }
     
-    [JsonPropertyName("time_to_peak")]
-    public int TimeToPeak { get; init; }
-    
     [JsonPropertyName("peak_duration")]
     public int PeakDuration { get; init; }
 }
