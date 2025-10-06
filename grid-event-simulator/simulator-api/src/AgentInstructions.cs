@@ -47,5 +47,6 @@ Use Markdown to format the response following the structure below:
     - For any purchasing of energry include, on the same line as the bullet, the final cost
 
 Continue this format for each subsequent 30-minute interval until the end of the event duration.
-The interval numbers should be sequential. Do NOT include interval numbers for intervals where no action is needed.";
+The interval numbers should be sequential. Do NOT include interval numbers for intervals where no action is needed.
+Do not deviate from the format for the action steps";
 }

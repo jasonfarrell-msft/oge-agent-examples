@@ -26,7 +26,12 @@ namespace GridSimulator.Api
             {
                 Name = "DemandCalculationAgent",
                 Instructions = AgentInstructions.DemandCalculationAgentInstructions,
-                Description = "Agent that calculates energy demand based on residential and commercial customer based on temperature"
+                Description = "Agent that calculates energy demand based on residential and commercial customer based on temperature",
+                ChatOptions = new ChatOptions()
+                {
+                    Temperature = 0.1f,
+                    TopP = 0.95f
+                }
             });
 
         public AIAgent GridAnalysisAgent => new ChatClientAgent(
@@ -38,6 +43,8 @@ namespace GridSimulator.Api
                 Description = "Agent that analyzes the grid and provides recommendations to mitigate an energy shortage",
                 ChatOptions = new ChatOptions
                 {
+                    Temperature = 0.1f,
+                    TopP = 0.95f,
                     Tools = [AIFunctionFactory.Create(GetRatesAsync)]
                 }
             });
@@ -48,6 +55,11 @@ namespace GridSimulator.Api
                 Name = "ActionPlanAgent",
                 Instructions = AgentInstructions.ActionPlanAgentInstructions,
                 Description = "Agent that creates an action plan based on the analysis of the grid",
+                ChatOptions = new ChatOptions()
+                {
+                    Temperature = 0.1f,
+                    TopP = 0.95f
+                }
             });
 
         // methods
