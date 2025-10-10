@@ -6,12 +6,12 @@ using Microsoft.Extensions.AI;
 namespace GridSimulator.Api.Services;
 
 public class DefaultRunSimulationService(IConfiguration configuration, IAgentFactory agentFactory,
-    ILogger<DefaultRunSimulationService> logger) : IRunSimulationService
+    ILogger logger) : IRunSimulationService
 {
     public async Task<string> RunSimulationAsync(RunSimulationRequestModel request)
     {
-        var demandCalcExecutor = new DemandCalculationExecutor(agentFactory.DemandCalculationAgent);
-        var outputCalcExecutor = new CalculateOutputExecutor();
+        var demandCalcExecutor = new DemandCalculationExecutor(agentFactory.DemandCalculationAgent, logger);
+        var outputCalcExecutor = new CalculateOutputExecutor(logger);
         var gridAnalysisExecutor = new GridAnalysisAgentExecutor(agentFactory.GridAnalysisAgent);
         var actionPlanExecutor = new ActionPlanAgentExecutor(agentFactory.ActionPlanAgent);
 

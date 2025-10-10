@@ -8,8 +8,8 @@ using System.Text.Json.Serialization;
 
 namespace GridSimulator.Api.Executors;
 
-internal sealed class DemandCalculationExecutor(AIAgent demandCalcAgent) : ReflectingExecutor<DemandCalculationExecutor>("DemandCalculationExecutor"),
-    IMessageHandler<RunSimulationRequestModel, RunSimulationRequestModel>
+internal sealed class DemandCalculationExecutor(AIAgent demandCalcAgent, ILogger logger)
+    : ReflectingExecutor<DemandCalculationExecutor>("DemandCalculationExecutor"), IMessageHandler<RunSimulationRequestModel, RunSimulationRequestModel>
 {
     public async ValueTask<RunSimulationRequestModel> HandleAsync(RunSimulationRequestModel simulationRequest, IWorkflowContext context)
     {
@@ -39,6 +39,7 @@ Calculate the total demand using the following data:
         if (string.IsNullOrEmpty(responseText))
             throw new Exception("The response from the AI agent is empty.");
 
+        logger.LogInformation($"Demand Calc Output: {responseText}");
         var result = JsonSerializer.Deserialize<CalculatedDemandResult>(responseText) ?? throw new Exception("Failed to deserialize the AI response.");
         await context.QueueStateUpdateAsync(Constants.DemandCalcKey, result, scopeName: "my-scope");
         

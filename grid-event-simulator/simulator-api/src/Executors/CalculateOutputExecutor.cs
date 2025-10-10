@@ -4,7 +4,7 @@ using Microsoft.Agents.AI.Workflows.Reflection;
 
 namespace GridSimulator.Api.Executors;
 
-public class CalculateOutputExecutor() : ReflectingExecutor<CalculateOutputExecutor>("CalculateOutputExecutor"),
+public class CalculateOutputExecutor(ILogger logger) : ReflectingExecutor<CalculateOutputExecutor>("CalculateOutputExecutor"),
     IMessageHandler<RunSimulationRequestModel, RunSimulationRequestModel>
 {
     public async ValueTask<RunSimulationRequestModel> HandleAsync(RunSimulationRequestModel requestModel, IWorkflowContext context)
@@ -15,12 +15,16 @@ public class CalculateOutputExecutor() : ReflectingExecutor<CalculateOutputExecu
                 CurrentPowerOutput: requestModel.BaselineGenerationParameters.CurrentOutput * ((decimal)requestModel.SimulationParameters.OutputReductionParameters.ReduceOutputPercent / 100),
                 MaxPowerOutput: requestModel.BaselineGenerationParameters.MaxOutput * ((decimal)requestModel.SimulationParameters.OutputReductionParameters.ReduceOutputPercent / 100)
             );
+            
+            logger.LogInformation($"Calculated output: {outputCalcResult.CurrentPowerOutput}");
+            logger.LogInformation($"Calculated max output: {outputCalcResult.MaxPowerOutput}");
 
             await context.QueueStateUpdateAsync(Constants.OutputCalcKey, outputCalcResult, scopeName: "my-scope");
         }
 
         if (requestModel.SimulationType == SimulationType.DemandSpike)
         {
+            logger.LogInformation("No Change to output");
             await context.QueueStateUpdateAsync(Constants.OutputCalcKey,
                 value: new CalculatedOutputResult(
                     requestModel.BaselineGenerationParameters.CurrentOutput,
