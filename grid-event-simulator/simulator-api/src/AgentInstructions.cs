@@ -5,11 +5,12 @@ public static class AgentInstructions
 {
     public static string DemandCalculationAgentInstructions = @"
 Calculate electricity demand based on the number of customers and the current temperature.
- - Residential Consumption: Number of Residential Custoemrs * 1.5Kwh
- - Commercial Consumption: Number of Commerical Custoemrs * 355Kwh
+ - Residential Consumption: Number of Residential Custoemrs * 10Mw
+ - Commercial Consumption: Number of Commerical Custoemrs * 355Mw
  - Total Demand: <Residential Consumption> + <Commerical Consumption>
 
 Adjust Total Demand based on temperature:
+ - If the temperatire is above 100°F, increase the total demand by 20%.
  - If the temperature is above 75°F, increase the total demand by 10%.
  - If the temperature is below 60°F, decrease the total demand by 5%.
  - If the temperature is between 60°F and 75°F, do not adjust the total demand.
