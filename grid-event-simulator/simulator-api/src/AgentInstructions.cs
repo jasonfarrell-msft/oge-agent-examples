@@ -42,7 +42,7 @@ Use Markdown to format the response following the structure below:
 
  ## Detailed Action Plan
  ### Interval 1: 0-30 minutes
-   ##### Actions
+   *Actions*
     - List the actions to be take. No more than three bullets. Do not provide sub-bullets.
     - Provide very clear actions for each bullet. There is only cost if we need to buy energy from a neighbor
     - For any purchasing of energry include, on the same line as the bullet, the final cost
