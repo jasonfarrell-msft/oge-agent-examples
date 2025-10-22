@@ -4,7 +4,7 @@ on:
 
 jobs:
   call-workflow-passing-data:
-    uses: xximjasonxx/actions-workflow-repo/.github/workflows/reusable-flow.yml@main
+    uses: xximjasonxx/actions-workflow-repo/.github/workflows/reusable-flow.yaml@main
     with:
       config-path: .github/labeler.yml
     secrets:
